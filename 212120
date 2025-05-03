@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Digital Cryptocurrency Exchanger</title>
+    <style>
+        :root {
+            --primary: #006633;
+            --secondary: #004d26;
+            --light: #f5f5f5;
+            --dark: #333;
+            --danger: #dc3545;
+            --success: #28a745;
+            --warning: #ffc107;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            background-color: #f9f9f9;
+            color: var(--dark);
+        }
+        
+        /* Auth Pages */
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--primary);
+        }
+        .auth-box {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .auth-box h2 {
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+        .auth-box .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .auth-box label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .auth-box input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .auth-box button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        /* Main Admin App */
+        .admin-app {
+            display: none;
+        }
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: var(--primary);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100%;
+        }
+        .logo {
+            text-align: center;
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .logo h2 {
+            color: white;
+        }
+        .nav-menu {
+            margin-top: 20px;
+        }
+        .nav-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        .nav-item:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        .nav-item i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        .nav-item.active {
+            background-color: var(--secondary);
+            border-left: 4px solid white;
+        }
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+        .user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .content-section {
+            background-color: white;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        .btn-warning {
+            background-color: var(--warning);
+            color: var(--dark);
+        }
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table th, .table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .table th {
+            background-color: var(--primary);
+            color: white;
+        }
+        .table tr:hover {
+            background-color: #f5f5f5;
+        }
+        .card {
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .card-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--primary);
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .status-pending {
+            color: var(--warning);
+            font-weight: bold;
+        }
+        .status-completed {
+            color: var(--success);
+            font-weight: bold;
+        }
+        .status-rejected {
+            color: var(--danger);
+            font-weight: bold;
+        }
+        .user-card {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .user-card img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+        .user-details {
+            flex: 1;
+        }
+        .user-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .proof-image {
+            max-width: 100%;
+            max-height: 200px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .auth-box {
+                width: 90%;
+                padding: 20px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <!-- Admin Login -->
+    <div id="authPages" class="auth-container">
+        <div id="loginPage" class="auth-box">
+            <h2>Admin Panel</h2>
+            <h3>Digital Cryptocurrency Exchanger</h3>
+            <div class="form-group">
+                <label for="adminEmail">Email</label>
+                <input type="email" id="adminEmail" placeholder="admin@cryptoexchange.com">
+            </div>
+            <div class="form-group">
+                <label for="adminPassword">Password</label>
+                <input type="password" id="adminPassword" placeholder="admin123">
+            </div>
+            <button onclick="adminLogin()">Login</button>
+            <p id="loginError" style="color: red; margin-top: 10px;"></p>
+        </div>
+    </div>
+    
+    <!-- Admin App -->
+    <div id="adminApp" class="admin-app">
+        <div class="container">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="logo">
+                    <h2>Admin Panel</h2>
+                </div>
+                <div class="nav-menu">
+                    <div class="nav-item active" onclick="showSection('adminDashboard')">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </div>
+                    <div class="nav-item" onclick="showSection('depositRequests')">
+                        <i class="fas fa-coins"></i>
+                        <span>Deposit Requests</span>
+                    </div>
+                    <div class="nav-item" onclick="showSection('withdrawalRequests')">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span>Withdrawal Requests</span>
+                    </div>
+                    <div class="nav-item" onclick="showSection('userManagement')">
+                        <i class="fas fa-users"></i>
+                        <span>User Management</span>
+                    </div>
+                    <div class="nav-item" onclick="showSection('transactionHistory')">
+                        <i class="fas fa-history"></i>
+                        <span>All Transactions</span>
+                    </div>
+                    <div class="nav-item" onclick="adminLogout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="main-content">
+                <div class="header">
+                    <h2>Admin Dashboard</h2>
+                    <div class="user-info">
+                        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Admin">
+                        <span id="loggedInAdmin">Admin</span>
+                    </div>
+                </div>
+
+                <!-- Dashboard -->
+                <div id="adminDashboard" class="content-section active">
+                    <div class="card">
+                        <h3 class="card-title">Quick Stats</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                            <div class="card">
+                                <h4>Total Users</h4>
+                                <h2 id="totalUsers">0</h2>
+                            </div>
+                            <div class="card">
+                                <h4>Pending Deposits</h4>
+                                <h2 id="pendingDeposits">0</h2>
+                            </div>
+                            <div class="card">
+                                <h4>Pending Withdrawals</h4>
+                                <h2 id="pendingWithdrawals">0</h2>
+                            </div>
+                            <div class="card">
+                                <h4>Total Balance</h4>
+                                <h2 id="totalBalance">0 PKR</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3 class="card-title">Recent Activity</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>User</th>
+                                    <th>Type</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentActivity">
+                                <!-- Recent transactions will be added here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Deposit Requests -->
+                <div id="depositRequests" class="content-section">
+                    <h2>Pending Deposit Requests</h2>
+                    <div id="depositRequestsList">
+                        <!-- Deposit requests will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Withdrawal Requests -->
+                <div id="withdrawalRequests" class="content-section">
+                    <h2>Pending Withdrawal Requests</h2>
+                    <div id="withdrawalRequestsList">
+                        <!-- Withdrawal requests will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- User Management -->
+                <div id="userManagement" class="content-section">
+                    <h2>User Management</h2>
+                    <div class="form-group">
+                        <input type="text" id="userSearch" class="form-control" placeholder="Search users by name, email or account number">
+                    </div>
+                    <div id="usersList">
+                        <!-- Users will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Transaction History -->
+                <div id="transactionHistory" class="content-section">
+                    <h2>All Transactions</h2>
+                    <div class="form-group">
+                        <input type="text" id="transactionSearch" class="form-control" placeholder="Search transactions">
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>User</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="allTransactions">
+                            <!-- All transactions will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Admin Data
+        const adminAccounts = [
+            {
+                email: "admin@cryptoexchange.com",
+                password: "admin123",
+                name: "Super Admin"
+            }
+        ];
+        
+        let currentAdmin = null;
+
+        // DOM Elements
+        const authPages = document.getElementById('authPages');
+        const adminApp = document.getElementById('adminApp');
+        const loggedInAdmin = document.getElementById('loggedInAdmin');
+        const loginError = document.getElementById('loginError');
+        
+        // Dashboard Elements
+        const totalUsers = document.getElementById('totalUsers');
+        const pendingDeposits = document.getElementById('pendingDeposits');
+        const pendingWithdrawals = document.getElementById('pendingWithdrawals');
+        const totalBalance = document.getElementById('totalBalance');
+        const recentActivity = document.getElementById('recentActivity');
+        
+        // Request Lists
+        const depositRequestsList = document.getElementById('depositRequestsList');
+        const withdrawalRequestsList = document.getElementById('withdrawalRequestsList');
+        
+        // User Management
+        const usersList = document.getElementById('usersList');
+        const userSearch = document.getElementById('userSearch');
+        
+        // Transaction History
+        const allTransactions = document.getElementById('allTransactions');
+        const transactionSearch = document.getElementById('transactionSearch');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize admin accounts in localStorage if not exists
+            if(!localStorage.getItem('adminAccounts')) {
+                localStorage.setItem('adminAccounts', JSON.stringify(adminAccounts));
+            }
+            
+            // Check if admin is already logged in
+            if(localStorage.getItem('currentAdmin')) {
+                currentAdmin = JSON.parse(localStorage.getItem('currentAdmin'));
+                showAdminApp();
+                loadDashboard();
+                loadDepositRequests();
+                loadWithdrawalRequests();
+                loadUsers();
+                loadAllTransactions();
+            }
+            
+            // Setup search functionality
+            userSearch.addEventListener('input', function() {
+                loadUsers(this.value);
+            });
+            
+            transactionSearch.addEventListener('input', function() {
+                loadAllTransactions(this.value);
+            });
+        });
+
+        // Admin Functions
+        function adminLogin() {
+            const email = document.getElementById('adminEmail').value.trim();
+            const password = document.getElementById('adminPassword').value;
+            
+            // Clear any previous error
+            loginError.textContent = '';
+            
+            // Get admin accounts from localStorage
+            const storedAdmins = JSON.parse(localStorage.getItem('adminAccounts')) || [];
+            
+            // Check if any admin matches credentials
+            const admin = storedAdmins.find(a => 
+                a.email.toLowerCase() === email.toLowerCase() && 
+                a.password === password
+            );
+            
+            if(admin) {
+                currentAdmin = admin;
+                localStorage.setItem('currentAdmin', JSON.stringify(currentAdmin));
+                showAdminApp();
+                loadDashboard();
+                loadDepositRequests();
+                loadWithdrawalRequests();
+                loadUsers();
+                loadAllTransactions();
+            } else {
+                loginError.textContent = 'Invalid admin credentials. Try: admin@cryptoexchange.com / admin123';
+            }
+        }
+
+        function showAdminApp() {
+            authPages.style.display = 'none';
+            adminApp.style.display = 'block';
+            loggedInAdmin.textContent = currentAdmin.name;
+        }
+
+        function adminLogout() {
+            currentAdmin = null;
+            localStorage.removeItem('currentAdmin');
+            adminApp.style.display = 'none';
+            authPages.style.display = 'flex';
+            document.getElementById('adminEmail').value = '';
+            document.getElementById('adminPassword').value = '';
+        }
+
+        function showSection(sectionId) {
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Find and activate the clicked nav item
+            const navItems = document.querySelectorAll('.nav-item');
+            for(let i = 0; i < navItems.length; i++) {
+                if(navItems[i].getAttribute('onclick') && 
+                   navItems[i].getAttribute('onclick').includes(sectionId)) {
+                    navItems[i].classList.add('active');
+                    break;
+                }
+            }
+            
+            // Refresh data when section is shown
+            if(sectionId === 'adminDashboard') loadDashboard();
+            if(sectionId === 'depositRequests') loadDepositRequests();
+            if(sectionId === 'withdrawalRequests') loadWithdrawalRequests();
+            if(sectionId === 'userManagement') loadUsers();
+            if(sectionId === 'transactionHistory') loadAllTransactions();
+        }
+
+        // Data Loading Functions
+        function loadDashboard() {
+            // Load data from localStorage that was saved from user app
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+            const pendingTransactions = JSON.parse(localStorage.getItem('pendingTransactions')) || [];
+            
+            // Calculate stats
+            totalUsers.textContent = users.length;
+            
+            const pendingDepositsCount = pendingTransactions.filter(t => t.type === 'deposit' && t.status === 'pending').length;
+            pendingDeposits.textContent = pendingDepositsCount;
+            
+            const pendingWithdrawalsCount = pendingTransactions.filter(t => t.type === 'withdraw' && t.status === 'pending').length;
+            pendingWithdrawals.textContent = pendingWithdrawalsCount;
+            
+            const totalSystemBalance = users.reduce((sum, user) => sum + user.balance, 0);
+            totalBalance.textContent = totalSystemBalance.toFixed(2) + ' PKR';
+            
+            // Show recent activity
+            recentActivity.innerHTML = '';
+            const recentTransactions = transactions.slice(-5).reverse(); // Get last 5 transactions
+            
+            if(recentTransactions.length === 0) {
+                recentActivity.innerHTML = '<tr><td colspan="5" style="text-align: center;">No recent activity</td></tr>';
+                return;
+            }
+            
+            recentTransactions.forEach(transaction => {
+                const user = users.find(u => u.id === transaction.userId);
+                const row = document.createElement('tr');
+                
+                const dateCell = document.createElement('td');
+                dateCell.textContent = new Date(transaction.date).toLocaleString();
+                
+                const userCell = document.createElement('td');
+                userCell.textContent = user ? user.name : 'Unknown User';
+                
+                const typeCell = document.createElement('td');
+                typeCell.textContent = transaction.description.includes('Deposit') ? 'Deposit' : 
+                                      transaction.description.includes('Withdrawal') ? 'Withdrawal' : 
+                                      'Other';
+                
+                const amountCell = document.createElement('td');
+                amountCell.textContent = transaction.amount.toFixed(2) + ' PKR';
+                amountCell.style.color = transaction.amount > 0 ? 'green' : 'red';
+                
+                const statusCell = document.createElement('td');
+                statusCell.textContent = transaction.status || 'completed';
+                if(transaction.status === 'pending') {
+                    statusCell.className = 'status-pending';
+                } else if(transaction.status === 'completed') {
+                    statusCell.className = 'status-completed';
+                } else if(transaction.status === 'rejected') {
+                    statusCell.className = 'status-rejected';
+                }
+                
+                row.appendChild(dateCell);
+                row.appendChild(userCell);
+                row.appendChild(typeCell);
+                row.appendChild(amountCell);
+                row.appendChild(statusCell);
+                recentActivity.appendChild(row);
+            });
+        }
+
+        function loadDepositRequests(search = '') {
+            const pendingTransactions = JSON.parse(localStorage.getItem('pendingTransactions')) || [];
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            
+            const depositRequests = pendingTransactions
+                .filter(t => t.type === 'deposit' && t.status === 'pending')
+                .filter(t => {
+                    if (!search) return true;
+                    const user = users.find(u => u.id === t.userId);
+                    const userMatch = user ? 
+                        user.name.toLowerCase().includes(search.toLowerCase()) || 
+                        user.email.toLowerCase().includes(search.toLowerCase()) || 
+                        user.accountNumber.toLowerCase().includes(search.toLowerCase())
+                        : false;
+                    const cryptoMatch = t.crypto.toLowerCase().includes(search.toLowerCase());
+                    return userMatch || cryptoMatch;
+                })
+                .reverse();
+            
+            depositRequestsList.innerHTML = '';
+            
+            if(depositRequests.length === 0) {
+                depositRequestsList.innerHTML = '<p>No pending deposit requests</p>';
+                return;
+            }
+            
+            depositRequests.forEach(request => {
+                const user = users.find(u => u.id === request.userId);
+                if(!user) return;
+                
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h4>${user.name} (${user.accountNumber})</h4>
+                            <p>${request.crypto} Deposit: ${request.amount} ${request.crypto}</p>
+                            <p>Date: ${new Date(request.date).toLocaleString()}</p>
+                            ${request.proof ? `<p>Proof: ${request.proof}</p>` : ''}
+                        </div>
+                        <div class="user-actions">
+                            <button class="btn btn-success" onclick="approveDeposit('${request.id}')">Approve</button>
+                            <button class="btn btn-danger" onclick="rejectDeposit('${request.id}')">Reject</button>
+                        </div>
+                    </div>
+                `;
+                
+                depositRequestsList.appendChild(card);
+            });
+        }
+
+        function loadWithdrawalRequests(search = '') {
+            const pendingTransactions = JSON.parse(localStorage.getItem('pendingTransactions')) || [];
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            
+            const withdrawalRequests = pendingTransactions
+                .filter(t => t.type === 'withdraw' && t.status === 'pending')
+                .filter(t => {
+                    if (!search) return true;
+                    const user = users.find(u => u.id === t.userId);
+                    const userMatch = user ? 
+                        user.name.toLowerCase().includes(search.toLowerCase()) || 
+                        user.email.toLowerCase().includes(search.toLowerCase()) || 
+                        user.accountNumber.toLowerCase().includes(search.toLowerCase())
+                        : false;
+                    const methodMatch = t.method.toLowerCase().includes(search.toLowerCase());
+                    return userMatch || methodMatch;
+                })
+                .reverse();
+            
+            withdrawalRequestsList.innerHTML = '';
+            
+            if(withdrawalRequests.length === 0) {
+                withdrawalRequestsList.innerHTML = '<p>No pending withdrawal requests</p>';
+                return;
+            }
+            
+            withdrawalRequests.forEach(request => {
+                const user = users.find(u => u.id === request.userId);
+                if(!user) return;
+                
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h4>${user.name} (${user.accountNumber})</h4>
+                            <p>Withdrawal to ${request.method}: ${request.amount} PKR</p>
+                            <p>Account: ${request.accountDetails} (${request.accountName})</p>
+                            <p>Date: ${new Date(request.date).toLocaleString()}</p>
+                        </div>
+                        <div class="user-actions">
+                            <button class="btn btn-success" onclick="approveWithdrawal('${request.id}')">Approve</button>
+                            <button class="btn btn-danger" onclick="rejectWithdrawal('${request.id}')">Reject</button>
+                        </div>
+                    </div>
+                `;
+                
+                withdrawalRequestsList.appendChild(card);
+            });
+        }
+
+        function loadUsers(search = '') {
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            
+            usersList.innerHTML = '';
+            
+            const filteredUsers = users
+                .filter(user => 
+                    !search ||
+                    user.name.toLowerCase().includes(search.toLowerCase()) ||
+                    user.email.toLowerCase().includes(search.toLowerCase()) ||
+                    user.accountNumber.toLowerCase().includes(search.toLowerCase())
+                )
+                .reverse();
+            
+            if(filteredUsers.length === 0) {
+                usersList.innerHTML = '<p>No users found</p>';
+                return;
+            }
+            
+            filteredUsers.forEach(user => {
+                const card = document.createElement('div');
+                card.className = 'user-card';
+                card.innerHTML = `
+                    <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="User">
+                    <div class="user-details">
+                        <h4>${user.name}</h4>
+                        <p>${user.email}</p>
+                        <p>Account: ${user.accountNumber} | Balance: ${user.balance.toFixed(2)} PKR</p>
+                    </div>
+                    <div class="user-actions">
+                        <button class="btn btn-primary" onclick="viewUser('${user.id}')">View</button>
+                        <button class="btn btn-warning" onclick="editUser('${user.id}')">Edit</button>
+                    </div>
+                `;
+                
+                usersList.appendChild(card);
+            });
+        }
+
+        function loadAllTransactions(search = '') {
+            const transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            
+            allTransactions.innerHTML = '';
+            
+            const filteredTransactions = transactions
+                .filter(t => 
+                    !search ||
+                    (users.find(u => u.id === t.userId)?.name.toLowerCase().includes(search.toLowerCase())) ||
+                    t.description.toLowerCase().includes(search.toLowerCase()) ||
+                    t.status.toLowerCase().includes(search.toLowerCase())
+                )
+                .reverse();
+            
+            if(filteredTransactions.length === 0) {
+                allTransactions.innerHTML = '<tr><td colspan="6" style="text-align: center;">No transactions found</td></tr>';
+                return;
+            }
+            
+            filteredTransactions.forEach(transaction => {
+                const user = users.find(u => u.id === transaction.userId);
+                const row = document.createElement('tr');
+                
+                const dateCell = document.createElement('td');
+                dateCell.textContent = new Date(transaction.date).toLocaleString();
+                
+                const userCell = document.createElement('td');
+                userCell.textContent = user ? user.name : 'Unknown User';
+                
+                const typeCell = document.createElement('td');
+                typeCell.textContent = transaction.description.includes('Deposit') ? 'Deposit' : 
+                                      transaction.description.includes('Withdrawal') ? 'Withdrawal' : 
+                                      'Other';
+                
+                const descCell = document.createElement('td');
+                descCell.textContent = transaction.description;
+                
+                const amountCell = document.createElement('td');
+                amountCell.textContent = transaction.amount.toFixed(2) + ' PKR';
+                amountCell.style.color = transaction.amount > 0 ? 'green' : 'red';
+                
+                const statusCell = document.createElement('td');
+                statusCell.textContent = transaction.status || 'completed';
+                if(transaction.status === 'pending') {
+                    statusCell.className = 'status-pending';
+                } else if(transaction.status === 'completed') {
+                    statusCell.className = 'status-completed';
+                } else if(transaction.status === 'rejected') {
+                    statusCell.className = 'status-rejected';
+                }
+                
+                row.appendChild(dateCell);
+                row.appendChild(userCell);
+                row.appendChild(typeCell);
+                row.appendChild(descCell);
+                row.appendChild(amountCell);
+                row.appendChild(statusCell);
+                allTransactions.appendChild(row);
+            });
+        }
+
+        // Admin Actions
+        function approveDeposit(transactionId) {
+            const pendingTransactions = JSON.parse(localStorage.getItem('pendingTransactions')) || [];
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+            
+            const transactionIndex = pendingTransactions.findIndex(t => t.id === transactionId);
+            if(transactionIndex === -1) return;
+            
+            const transaction = pendingTransactions[transactionIndex];
+            const userIndex = users.findIndex(u => u.id === transaction.userId);
+            
+            if(userIndex !== -1) {
+                // Update user balance
+                users[userIndex].balance += transaction.amount;
+                
+                // Update transaction status
+                transaction.status = 'completed';
+                pendingTransactions.splice(transactionIndex, 1);
+                
+                // Update main transactions
+                const mainTransactionIndex = transactions.findIndex(t => t.id === transactionId);
+                if(mainTransactionIndex !== -1) {
+                    transactions[mainTransactionIndex].status = 'completed';
+                    transactions[mainTransactionIndex].amount = transaction.amount;
+                    transactions[mainTransactionIndex].balance = users[userIndex].balance;
+                    transactions[mainTransactionIndex].description = `Deposit completed: ${transaction.crypto}`;
+                }
+                
+                // Save changes
+                localStorage.setItem('users', JSON.stringify(users));
+                localStorage.setItem('pendingTransactions', JSON.stringify(pendingTransactions));
+                localStorage.setItem('transactions', JSON.stringify(transactions));
+                
+                alert('Deposit approved successfully');
+                loadDashboard();
+                loadDepositRequests();
+            }
+        }
+
+        function rejectDeposit(transactionId) {
+            const pendingTransactions = JSON.parse(localStorage.getItem('pendingTransactions')) || [];
+            const transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+            
+            const transactionIndex = pendingTransactions.findIndex(t => t.id === transactionId);
+            if(transactionIndex === -1) return;
+            
+            const transaction = pendingTransactions[transactionIndex];
+            
+            // Update transaction status
+            transaction.status = 'rejected';
+            pendingTransactions.splice(transactionIndex, 1);
+            
+            // Update main transactions
+            const mainTransactionIndex = transactions.findIndex(t => t.id === transactionId);
+            if(mainTransactionIndex !== -1) {
+                transactions[mainTransactionIndex].status = 'rejected';
+                transactions[mainTransactionIndex].description = `Deposit rejected: ${transaction.crypto}`;
+            }
+            
+            // Save changes
+            localStorage.setItem('pendingTransactions', JSON.stringify(pendingTransactions));
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+            
+            alert('Deposit rejected');
+            loadDashboard();
+            loadDepositRequests();
+        }
+
+        function approveWithdrawal(transactionId) {
+            const pendingTransactions = JSON.parse(localStorage.getItem('pendingTransactions')) || [];
+            const transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+            
+            const transactionIndex = pendingTransactions.findIndex(t => t.id === transactionId);
+            if(transactionIndex === -1) return;
+            
+            const transaction = pendingTransactions[transactionIndex];
+            
+            // Update transaction status
+            transaction.status = 'completed';
+            pendingTransactions.splice(transactionIndex, 1);
+            
+            // Update main transactions
+            const mainTransactionIndex = transactions.findIndex(t => t.id === transactionId);
+            if(mainTransactionIndex !== -1) {
+                transactions[mainTransactionIndex].status = 'completed';
+                transactions[mainTransactionIndex].description = `Withdrawal completed to ${transaction.method}`;
+            }
+            
+            // Save changes
+            localStorage.setItem('pendingTransactions', JSON.stringify(pendingTransactions));
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+            
+            alert('Withdrawal approved successfully');
+            loadDashboard();
+            loadWithdrawalRequests();
+        }
+
+        function rejectWithdrawal(transactionId) {
+            const pendingTransactions = JSON.parse(localStorage.getItem('pendingTransactions')) || [];
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+            
+            const transactionIndex = pendingTransactions.findIndex(t => t.id === transactionId);
+            if(transactionIndex === -1) return;
+            
+            const transaction = pendingTransactions[transactionIndex];
+            const userIndex = users.findIndex(u => u.id === transaction.userId);
+            
+            if(userIndex !== -1) {
+                // Return funds to user balance
+                users[userIndex].balance += transaction.amount;
+                
+                // Update transaction status
+                transaction.status = 'rejected';
+                pendingTransactions.splice(transactionIndex, 1);
+                
+                // Update main transactions
+                const mainTransactionIndex = transactions.findIndex(t => t.id === transactionId);
+                if(mainTransactionIndex !== -1) {
+                    transactions[mainTransactionIndex].status = 'rejected';
+                    transactions[mainTransactionIndex].balance = users[userIndex].balance;
+                    transactions[mainTransactionIndex].description = `Withdrawal rejected from ${transaction.method}`;
+                }
+                
+                // Save changes
+                localStorage.setItem('users', JSON.stringify(users));
+                localStorage.setItem('pendingTransactions', JSON.stringify(pendingTransactions));
+                localStorage.setItem('transactions', JSON.stringify(transactions));
+                
+                alert('Withdrawal rejected and funds returned to user');
+                loadDashboard();
+                loadWithdrawalRequests();
+            }
+        }
+
+        function viewUser(userId) {
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const user = users.find(u => u.id === userId);
+            
+            if(user) {
+                alert(`User Details:\n\nName: ${user.name}\nEmail: ${user.email}\nPhone: ${user.phone}\nAddress: ${user.address}\nAccount: ${user.accountNumber}\nBalance: ${user.balance.toFixed(2)} PKR\nKYC: ${user.kycVerified ? 'Verified' : 'Not Verified'}`);
+            }
+        }
+
+        function editUser(userId) {
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const userIndex = users.findIndex(u => u.id === userId);
+            
+            if(userIndex !== -1) {
+                const newBalance = prompt('Enter new balance (PKR):', users[userIndex].balance);
+                if(newBalance !== null && !isNaN(newBalance)) {
+                    users[userIndex].balance = parseFloat(newBalance);
+                    localStorage.setItem('users', JSON.stringify(users));
+                    alert('User balance updated');
+                    loadUsers();
+                    loadDashboard();
+                }
+            }
+        }
+    </script>
+</body>
+</html>

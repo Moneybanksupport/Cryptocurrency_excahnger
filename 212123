@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Cryptocurrency Exchanger</title>
+    <style>
+        :root {
+            --primary: #006633;
+            --secondary: #004d26;
+            --light: #f5f5f5;
+            --dark: #333;
+            --danger: #dc3545;
+            --success: #28a745;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            background-color: #f9f9f9;
+            color: var(--dark);
+        }
+        
+        /* Auth Pages */
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--primary);
+        }
+        .auth-box {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .auth-box h2 {
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+        .auth-box .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .auth-box label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .auth-box input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .auth-box button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .auth-box .toggle-auth {
+            margin-top: 15px;
+            color: #666;
+        }
+        .auth-box .toggle-auth a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        /* Main App */
+        .banking-app {
+            display: none;
+        }
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: var(--primary);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100%;
+        }
+        .logo {
+            text-align: center;
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .logo h2 {
+            color: white;
+        }
+        .nav-menu {
+            margin-top: 20px;
+        }
+        .nav-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        .nav-item:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        .nav-item i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        .nav-item.active {
+            background-color: var(--secondary);
+            border-left: 4px solid white;
+        }
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+        .user-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .content-section {
+            background-color: white;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table th, .table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .table th {
+            background-color: var(--primary);
+            color: white;
+        }
+        .table tr:hover {
+            background-color: #f5f5f5;
+        }
+        .card {
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .card-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--primary);
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .balance-display {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .balance-display h4 {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .balance-display h2 {
+            font-size: 32px;
+            color: var(--primary);
+        }
+        .crypto-option {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .crypto-option:hover {
+            background-color: #f5f5f5;
+        }
+        .crypto-option.selected {
+            border-color: var(--primary);
+            background-color: rgba(0, 102, 51, 0.1);
+        }
+        .processing-time {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .deposit-address {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            word-break: break-all;
+            margin-bottom: 15px;
+        }
+        .payment-method {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .payment-method i {
+            margin-right: 10px;
+            font-size: 24px;
+            color: var(--primary);
+        }
+        .file-upload {
+            border: 1px dashed #ddd;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .file-upload input {
+            display: none;
+        }
+        .file-upload label {
+            cursor: pointer;
+            display: block;
+        }
+        .file-upload i {
+            font-size: 40px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .file-name {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .auth-box {
+                width: 90%;
+                padding: 20px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <!-- Auth Pages -->
+    <div id="authPages" class="auth-container">
+        <!-- Login Page -->
+        <div id="loginPage" class="auth-box">
+            <h2>Digital Cryptocurrency Exchanger</h2>
+            <h3>Login to Your Account</h3>
+            <div class="form-group">
+                <label for="loginEmail">Email</label>
+                <input type="email" id="loginEmail" placeholder="Enter your email">
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" placeholder="Enter your password">
+            </div>
+            <button onclick="login()">Login</button>
+            <div class="toggle-auth">
+                Don't have an account? <a href="#" onclick="showAuthPage('registerPage')">Register</a>
+            </div>
+        </div>
+        
+        <!-- Register Page -->
+        <div id="registerPage" class="auth-box" style="display: none;">
+            <h2>Digital Cryptocurrency Exchanger</h2>
+            <h3>Create New Account</h3>
+            <div class="form-group">
+                <label for="regName">Full Name</label>
+                <input type="text" id="regName" placeholder="Enter your full name">
+            </div>
+            <div class="form-group">
+                <label for="regEmail">Email</label>
+                <input type="email" id="regEmail" placeholder="Enter your email">
+            </div>
+            <div class="form-group">
+                <label for="regPhone">Phone Number</label>
+                <input type="tel" id="regPhone" placeholder="Enter your phone number">
+            </div>
+            <div class="form-group">
+                <label for="regAddress">Address</label>
+                <input type="text" id="regAddress" placeholder="Enter your address">
+            </div>
+            <div class="form-group">
+                <label for="regPassword">Password</label>
+                <input type="password" id="regPassword" placeholder="Create a password">
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="kycCheckbox"> I agree to complete KYC verification
+                </label>
+            </div>
+            <button onclick="register()">Register</button>
+            <div class="toggle-auth">
+                Already have an account? <a href="#" onclick="showAuthPage('loginPage')">Login</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main App -->
+    <div id="bankingApp" class="banking-app">
+        <div class="container">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="logo">
+                    <h2>Digital Crypto Exchanger</h2>
+                </div>
+                <div class="nav-menu">
+                    <div class="nav-item" onclick="showSection('dashboard')">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </div>
+                    <div class="nav-item" onclick="showSection('deposit')">
+                        <i class="fas fa-coins"></i>
+                        <span>Deposit Crypto</span>
+                    </div>
+                    <div class="nav-item" onclick="showSection('withdraw')">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span>Withdraw Funds</span>
+                    </div>
+                    <div class="nav-item" onclick="showSection('transactions')">
+                        <i class="fas fa-history"></i>
+                        <span>Transactions</span>
+                    </div>
+                    <div class="nav-item" onclick="showSection('profile')">
+                        <i class="fas fa-user"></i>
+                        <span>Profile</span>
+                    </div>
+                    <div class="nav-item" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="main-content">
+                <div class="header">
+                    <h2>Digital Cryptocurrency Exchanger</h2>
+                    <div class="user-info">
+                        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="User">
+                        <span id="loggedInUser">Guest</span>
+                    </div>
+                </div>
+
+                <!-- Dashboard -->
+                <div id="dashboard" class="content-section active">
+                    <div class="card">
+                        <h3 class="card-title">Account Summary</h3>
+                        <div class="balance-display">
+                            <h4>Available Balance (PKR)</h4>
+                            <h2 id="currentBalance">0.00 PKR</h2>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3 class="card-title">Quick Actions</h3>
+                        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                            <button class="btn btn-primary" onclick="showSection('deposit')">
+                                <i class="fas fa-coins"></i> Deposit
+                            </button>
+                            <button class="btn btn-primary" onclick="showSection('withdraw')">
+                                <i class="fas fa-money-bill-wave"></i> Withdraw
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Deposit Crypto -->
+                <div id="deposit" class="content-section">
+                    <h2>Deposit Cryptocurrency</h2>
+                    <form id="depositForm">
+                        <div class="form-group">
+                            <label>Select Cryptocurrency</label>
+                            <div class="crypto-option" onclick="selectCrypto(this, 'trx')">
+                                <span>TRX (Tron)</span>
+                            </div>
+                            <div class="crypto-option" onclick="selectCrypto(this, 'solana')">
+                                <span>Solana (SOL)</span>
+                            </div>
+                            <div class="crypto-option" onclick="selectCrypto(this, 'usdt')">
+                                <span>USDT (ERC20)</span>
+                            </div>
+                            <input type="hidden" id="selectedCrypto" value="">
+                        </div>
+                        <div class="form-group" id="depositAddressGroup" style="display: none;">
+                            <label>Deposit Address</label>
+                            <div class="deposit-address" id="cryptoAddressDisplay">Please select a cryptocurrency</div>
+                            <p class="processing-time">Processing time: 24 hours after network confirmation</p>
+                        </div>
+                        <div class="form-group" id="depositAmountGroup" style="display: none;">
+                            <label for="depositAmount">Amount</label>
+                            <input type="number" id="depositAmount" class="form-control" placeholder="Enter amount to deposit">
+                        </div>
+                        <div class="form-group" id="depositProofGroup" style="display: none;">
+                            <label>Deposit Proof (Transaction Screenshot)</label>
+                            <div class="file-upload">
+                                <input type="file" id="depositProof" accept="image/*">
+                                <label for="depositProof">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <p>Click to upload transaction proof</p>
+                                    <p class="file-name" id="proofFileName">No file selected</p>
+                                </label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block" id="depositSubmitBtn" style="display: none;">Confirm Deposit</button>
+                    </form>
+                </div>
+
+                <!-- Withdraw Funds -->
+                <div id="withdraw" class="content-section">
+                    <h2>Withdraw Funds (PKR)</h2>
+                    <form id="withdrawForm">
+                        <div class="form-group">
+                            <label for="withdrawAmount">Amount (PKR)</label>
+                            <input type="number" id="withdrawAmount" class="form-control" placeholder="Enter amount to withdraw" min="100">
+                        </div>
+                        <div class="form-group">
+                            <label>Select Payment Method</label>
+                            <div class="payment-method" onclick="selectPaymentMethod(this, 'easypaisa')">
+                                <i class="fas fa-mobile-alt"></i>
+                                <div>
+                                    <strong>EasyPaisa</strong>
+                                    <p>Mobile Account Transfer</p>
+                                </div>
+                            </div>
+                            <div class="payment-method" onclick="selectPaymentMethod(this, 'jazzcash')">
+                                <i class="fas fa-wallet"></i>
+                                <div>
+                                    <strong>JazzCash</strong>
+                                    <p>Mobile Wallet Transfer</p>
+                                </div>
+                            </div>
+                            <div class="payment-method" onclick="selectPaymentMethod(this, 'nayapay')">
+                                <i class="fas fa-money-bill-wave"></i>
+                                <div>
+                                    <strong>NayaPay</strong>
+                                    <p>Digital Wallet Transfer</p>
+                                </div>
+                            </div>
+                            <div class="payment-method" onclick="selectPaymentMethod(this, 'sadapay')">
+                                <i class="fas fa-credit-card"></i>
+                                <div>
+                                    <strong>SadaPay</strong>
+                                    <p>Digital Account Transfer</p>
+                                </div>
+                            </div>
+                            <div class="payment-method" onclick="selectPaymentMethod(this, 'bank')">
+                                <i class="fas fa-university"></i>
+                                <div>
+                                    <strong>Bank Transfer</strong>
+                                    <p>IBAN/Account Transfer</p>
+                                </div>
+                            </div>
+                            <input type="hidden" id="selectedPaymentMethod" value="">
+                        </div>
+                        <div class="form-group" id="paymentDetailsGroup" style="display: none;">
+                            <label for="paymentDetails">Account Number/IBAN</label>
+                            <input type="text" id="paymentDetails" class="form-control" placeholder="Enter your account details">
+                            <label for="accountName">Account Title</label>
+                            <input type="text" id="accountName" class="form-control" placeholder="Enter account holder name">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block" id="withdrawSubmitBtn" style="display: none;">Request Withdrawal</button>
+                        <p class="processing-time">Processing time: 24 hours</p>
+                    </form>
+                </div>
+
+                <!-- Transactions -->
+                <div id="transactions" class="content-section">
+                    <h2>Transaction History</h2>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionHistory">
+                            <!-- Transactions will be added here dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Profile -->
+                <div id="profile" class="content-section">
+                    <h2>User Profile</h2>
+                    <div class="card">
+                        <div style="display: flex; align-items: center; margin-bottom: 20px;">
+                            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile" style="width: 80px; height: 80px; border-radius: 50%;">
+                            <div style="margin-left: 20px;">
+                                <h3 id="profileName">-</h3>
+                                <p id="profileAccount">Account No: -</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <p id="profileEmail">-</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone</label>
+                            <p id="profilePhone">-</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Address</label>
+                            <p id="profileAddress">-</p>
+                        </div>
+                        <div class="form-group">
+                            <label>KYC Status</label>
+                            <p id="kycStatus">Not Verified</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Account Balance (PKR)</label>
+                            <p id="profileBalance">0.00 PKR</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // User Data
+        let currentUser = null;
+        let users = JSON.parse(localStorage.getItem('users')) || [];
+        let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+        let balance = 0;
+        let pendingTransactions = JSON.parse(localStorage.getItem('pendingTransactions')) || [];
+        
+        // Crypto deposit addresses
+        const cryptoAddresses = {
+            trx: "TNPZfUwT7yFyX7XkFYZz1YQY1X1X1X1X1X1",
+            solana: "7XkFYZz1YQY1X1X1X1X1X1X1X1X1X1X1X1X1X1",
+            usdt: "0x7XkFYZz1YQY1X1X1X1X1X1X1X1X1X1X1X1"
+        };
+
+        // DOM Elements
+        const authPages = document.getElementById('authPages');
+        const bankingApp = document.getElementById('bankingApp');
+        const loginPage = document.getElementById('loginPage');
+        const registerPage = document.getElementById('registerPage');
+        const loggedInUserSpan = document.getElementById('loggedInUser');
+        const currentBalanceSpan = document.getElementById('currentBalance');
+        const transactionHistoryTbody = document.getElementById('transactionHistory');
+        const profileName = document.getElementById('profileName');
+        const profileAccount = document.getElementById('profileAccount');
+        const profileEmail = document.getElementById('profileEmail');
+        const profilePhone = document.getElementById('profilePhone');
+        const profileAddress = document.getElementById('profileAddress');
+        const profileBalance = document.getElementById('profileBalance');
+        const kycStatus = document.getElementById('kycStatus');
+        const cryptoAddressDisplay = document.getElementById('cryptoAddressDisplay');
+        const proofFileName = document.getElementById('proofFileName');
+
+        // Form Elements
+        const depositForm = document.getElementById('depositForm');
+        const withdrawForm = document.getElementById('withdrawForm');
+        const depositProofInput = document.getElementById('depositProof');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            if(localStorage.getItem('currentUser')) {
+                currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                showBankingApp();
+                processPendingTransactions();
+            }
+            
+            // Handle file upload display
+            depositProofInput.addEventListener('change', function() {
+                if(this.files.length > 0) {
+                    proofFileName.textContent = this.files[0].name;
+                } else {
+                    proofFileName.textContent = 'No file selected';
+                }
+            });
+        });
+
+        // Process any pending transactions that might be complete
+        function processPendingTransactions() {
+            const now = new Date();
+            const completedTransactions = [];
+            
+            pendingTransactions = pendingTransactions.filter(transaction => {
+                if (transaction.userId !== currentUser.id) return true;
+                
+                const transactionDate = new Date(transaction.date);
+                const hoursDiff = (now - transactionDate) / (1000 * 60 * 60);
+                
+                if (hoursDiff >= 24) {
+                    // Transaction processing time complete
+                    if (transaction.type === 'deposit') {
+                        balance += transaction.amount;
+                        currentUser.balance = balance;
+                        addTransaction(`Deposit completed: ${transaction.crypto}`, transaction.amount, balance, 'completed');
+                    } else if (transaction.type === 'withdraw') {
+                        balance -= transaction.amount;
+                        currentUser.balance = balance;
+                        addTransaction(`Withdrawal completed to ${transaction.method}`, -transaction.amount, balance, 'completed');
+                    }
+                    completedTransactions.push(transaction);
+                    return false;
+                }
+                return true;
+            });
+            
+            if (completedTransactions.length > 0) {
+                localStorage.setItem('pendingTransactions', JSON.stringify(pendingTransactions));
+                updateUserData();
+                updateBalance();
+                updateTransactionHistory();
+            }
+        }
+
+        // Auth Functions
+        function showAuthPage(pageId) {
+            loginPage.style.display = pageId === 'loginPage' ? 'block' : 'none';
+            registerPage.style.display = pageId === 'registerPage' ? 'block' : 'none';
+        }
+
+        function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if(user) {
+                currentUser = user;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                showBankingApp();
+                processPendingTransactions();
+            } else {
+                alert('Invalid email or password');
+            }
+        }
+
+        function register() {
+            const kycVerified = document.getElementById('kycCheckbox').checked;
+            
+            if (!kycVerified) {
+                alert('You must agree to complete KYC verification to register');
+                return;
+            }
+            
+            const newUser = {
+                id: Date.now(),
+                name: document.getElementById('regName').value,
+                email: document.getElementById('regEmail').value,
+                phone: document.getElementById('regPhone').value,
+                address: document.getElementById('regAddress').value,
+                password: document.getElementById('regPassword').value,
+                balance: 0,
+                kycVerified: false,
+                accountNumber: 'CR' + Math.floor(100000000 + Math.random() * 900000000)
+            };
+            
+            if(users.some(u => u.email === newUser.email)) {
+                alert('Email already registered');
+                return;
+            }
+            
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            currentUser = newUser;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            addTransaction('Account Opening', 0, 0, 'completed');
+            showBankingApp();
+        }
+
+        function showBankingApp() {
+            authPages.style.display = 'none';
+            bankingApp.style.display = 'block';
+            loggedInUserSpan.textContent = currentUser.name;
+            balance = currentUser.balance;
+            updateBalance();
+            updateProfile();
+            updateTransactionHistory();
+            showSection('dashboard');
+        }
+
+        // Crypto Selection Functions
+        function selectCrypto(element, crypto) {
+            document.querySelectorAll('.crypto-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            document.getElementById('selectedCrypto').value = crypto;
+            
+            // Show the appropriate deposit address
+            cryptoAddressDisplay.textContent = cryptoAddresses[crypto];
+            
+            document.getElementById('depositAddressGroup').style.display = 'block';
+            document.getElementById('depositAmountGroup').style.display = 'block';
+            document.getElementById('depositProofGroup').style.display = 'block';
+            document.getElementById('depositSubmitBtn').style.display = 'block';
+        }
+
+        function selectPaymentMethod(element, method) {
+            document.querySelectorAll('.payment-method').forEach(opt => {
+                opt.style.borderColor = '#ddd';
+                opt.style.backgroundColor = 'transparent';
+            });
+            element.style.borderColor = 'var(--primary)';
+            element.style.backgroundColor = 'rgba(0, 102, 51, 0.1)';
+            document.getElementById('selectedPaymentMethod').value = method;
+            document.getElementById('paymentDetailsGroup').style.display = 'block';
+            document.getElementById('withdrawSubmitBtn').style.display = 'block';
+        }
+
+        // Form Submissions
+        depositForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const crypto = document.getElementById('selectedCrypto').value;
+            const amount = parseFloat(document.getElementById('depositAmount').value);
+            const proofFile = depositProofInput.files[0];
+            
+            if(!crypto) {
+                alert('Please select a cryptocurrency');
+                return;
+            }
+            
+            if(amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+            
+            if(!proofFile) {
+                alert('Please upload transaction proof');
+                return;
+            }
+            
+            // Add as pending transaction
+            const transaction = {
+                id: Date.now(),
+                userId: currentUser.id,
+                type: 'deposit',
+                crypto: crypto.toUpperCase(),
+                amount: amount,
+                date: new Date().toISOString(),
+                status: 'pending',
+                proof: proofFile.name
+            };
+            
+            pendingTransactions.push(transaction);
+            localStorage.setItem('pendingTransactions', JSON.stringify(pendingTransactions));
+            
+            addTransaction(`Deposit initiated: ${crypto.toUpperCase()}`, 0, balance, 'pending');
+            alert(`Deposit request received. Your ${amount} ${crypto.toUpperCase()} will be converted to PKR after 24 hours processing time.`);
+            depositForm.reset();
+            proofFileName.textContent = 'No file selected';
+            document.querySelectorAll('.crypto-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            document.getElementById('depositAddressGroup').style.display = 'none';
+            document.getElementById('depositAmountGroup').style.display = 'none';
+            document.getElementById('depositProofGroup').style.display = 'none';
+            document.getElementById('depositSubmitBtn').style.display = 'none';
+            showSection('dashboard');
+        });
+
+        withdrawForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            const method = document.getElementById('selectedPaymentMethod').value;
+            const accountDetails = document.getElementById('paymentDetails').value;
+            const accountName = document.getElementById('accountName').value;
+            
+            if(amount < 100) {
+                alert('Minimum withdrawal amount is 100 PKR');
+                return;
+            }
+            
+            if(!method) {
+                alert('Please select a payment method');
+                return;
+            }
+            
+            if(!accountDetails) {
+                alert('Please enter your account details');
+                return;
+            }
+            
+            if(!accountName) {
+                alert('Please enter account holder name');
+                return;
+            }
+            
+            if(amount > balance) {
+                alert('Insufficient balance');
+                return;
+            }
+            
+            // Add as pending transaction
+            const transaction = {
+                id: Date.now(),
+                userId: currentUser.id,
+                type: 'withdraw',
+                method: method,
+                amount: amount,
+                accountDetails: accountDetails,
+                accountName: accountName,
+                date: new Date().toISOString(),
+                status: 'pending'
+            };
+            
+            pendingTransactions.push(transaction);
+            localStorage.setItem('pendingTransactions', JSON.stringify(pendingTransactions));
+            
+            balance -= amount;
+            currentUser.balance = balance;
+            updateUserData();
+            updateBalance();
+            
+            addTransaction(`Withdrawal initiated to ${method}`, -amount, balance, 'pending');
+            alert(`Withdrawal request received. Your ${amount} PKR will be sent to your ${method} account after 24 hours processing time.`);
+            withdrawForm.reset();
+            document.querySelectorAll('.payment-method').forEach(opt => {
+                opt.style.borderColor = '#ddd';
+                opt.style.backgroundColor = 'transparent';
+            });
+            document.getElementById('paymentDetailsGroup').style.display = 'none';
+            document.getElementById('withdrawSubmitBtn').style.display = 'none';
+            showSection('dashboard');
+        });
+
+        // Helper Functions
+        function showSection(sectionId) {
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            const navItems = document.querySelectorAll('.nav-item');
+            for(let i = 0; i < navItems.length; i++) {
+                if(navItems[i].getAttribute('onclick').includes(sectionId)) {
+                    navItems[i].classList.add('active');
+                    break;
+                }
+            }
+        }
+
+        function updateBalance() {
+            currentBalanceSpan.textContent = balance.toFixed(2) + ' PKR';
+            profileBalance.textContent = balance.toFixed(2) + ' PKR';
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        }
+
+        function updateProfile() {
+            if(currentUser) {
+                profileName.textContent = currentUser.name;
+                profileAccount.textContent = 'Account No: ' + currentUser.accountNumber;
+                profileEmail.textContent = currentUser.email;
+                profilePhone.textContent = currentUser.phone;
+                profileAddress.textContent = currentUser.address;
+                profileBalance.textContent = currentUser.balance.toFixed(2) + ' PKR';
+                kycStatus.textContent = currentUser.kycVerified ? 'Verified' : 'Not Verified';
+                kycStatus.style.color = currentUser.kycVerified ? 'green' : 'red';
+            }
+        }
+
+        function updateTransactionHistory() {
+            transactionHistoryTbody.innerHTML = '';
+            const userTransactions = transactions.filter(t => t.userId === currentUser.id);
+            
+            if(userTransactions.length === 0) {
+                transactionHistoryTbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No transactions found</td></tr>';
+                return;
+            }
+            
+            // Sort by date (newest first)
+            userTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            userTransactions.forEach(transaction => {
+                const row = document.createElement('tr');
+                
+                const dateCell = document.createElement('td');
+                dateCell.textContent = new Date(transaction.date).toLocaleString();
+                
+                const typeCell = document.createElement('td');
+                typeCell.textContent = transaction.description.includes('Deposit') ? 'Deposit' : 
+                                      transaction.description.includes('Withdrawal') ? 'Withdrawal' : 
+                                      'Other';
+                
+                const descCell = document.createElement('td');
+                descCell.textContent = transaction.description;
+                
+                const amountCell = document.createElement('td');
+                if (transaction.amount > 0) {
+                    amountCell.textContent = '+' + transaction.amount.toFixed(2) + ' PKR';
+                    amountCell.style.color = 'green';
+                } else if (transaction.amount < 0) {
+                    amountCell.textContent = transaction.amount.toFixed(2) + ' PKR';
+                    amountCell.style.color = 'red';
+                } else {
+                    amountCell.textContent = '0.00 PKR';
+                }
+                
+                const statusCell = document.createElement('td');
+                statusCell.textContent = transaction.status || 'completed';
+                statusCell.style.color = transaction.status === 'pending' ? 'orange' : 'green';
+                
+                row.appendChild(dateCell);
+                row.appendChild(typeCell);
+                row.appendChild(descCell);
+                row.appendChild(amountCell);
+                row.appendChild(statusCell);
+                transactionHistoryTbody.appendChild(row);
+            });
+        }
+
+        function addTransaction(description, amount, newBalance, status = 'completed') {
+            const transaction = {
+                id: Date.now(),
+                userId: currentUser.id,
+                date: new Date().toISOString(),
+                description,
+                amount,
+                balance: newBalance,
+                status
+            };
+            transactions.push(transaction);
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+            balance = newBalance;
+            currentUser.balance = balance;
+            updateUserData();
+            updateBalance();
+            updateTransactionHistory();
+        }
+
+        function updateUserData() {
+            const userIndex = users.findIndex(u => u.id === currentUser.id);
+            if(userIndex !== -1) {
+                users[userIndex] = currentUser;
+                localStorage.setItem('users', JSON.stringify(users));
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            bankingApp.style.display = 'none';
+            authPages.style.display = 'flex';
+            showAuthPage('loginPage');
+            document.getElementById('loginEmail').value = '';
+            document.getElementById('loginPassword').value = '';
+        }
+    </script>
+</body>
+</html>
