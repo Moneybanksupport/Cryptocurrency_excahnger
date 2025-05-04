@@ -13,6 +13,7 @@
             --danger: #dc3545;
             --success: #28a745;
             --warning: #ffc107;
+            --info: #17a2b8;
         }
         * {
             box-sizing: border-box;
@@ -170,6 +171,14 @@
             border-radius: 4px;
             font-size: 16px;
         }
+        .select-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            background-color: white;
+        }
         .btn {
             padding: 10px 20px;
             border: none;
@@ -194,9 +203,17 @@
             background-color: var(--warning);
             color: var(--dark);
         }
+        .btn-info {
+            background-color: var(--info);
+            color: white;
+        }
         .btn-block {
             display: block;
             width: 100%;
+        }
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 14px;
         }
         .table {
             width: 100%;
@@ -268,6 +285,68 @@
             border-radius: 5px;
             margin-top: 10px;
         }
+        .kyc-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .kyc-verified {
+            background-color: var(--success);
+            color: white;
+        }
+        .kyc-pending {
+            background-color: var(--warning);
+            color: var(--dark);
+        }
+        .kyc-not-verified {
+            background-color: var(--danger);
+            color: white;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 5px;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .modal-title {
+            font-size: 20px;
+            color: var(--primary);
+        }
+        .close-modal {
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .filter-group {
+            flex: 1;
+        }
         
         @media (max-width: 768px) {
             .sidebar {
@@ -281,6 +360,13 @@
             .auth-box {
                 width: 90%;
                 padding: 20px;
+            }
+            .filters {
+                flex-direction: column;
+            }
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
             }
         }
     </style>
@@ -330,6 +416,10 @@
                         <i class="fas fa-users"></i>
                         <span>User Management</span>
                     </div>
+                    <div class="nav-item" onclick="showSection('kycVerification')">
+                        <i class="fas fa-id-card"></i>
+                        <span>KYC Verification</span>
+                    </div>
                     <div class="nav-item" onclick="showSection('transactionHistory')">
                         <i class="fas fa-history"></i>
                         <span>All Transactions</span>
@@ -344,7 +434,7 @@
             <!-- Main Content -->
             <div class="main-content">
                 <div class="header">
-                    <h2>Admin Dashboard</h2>
+                    <h2 id="currentSectionTitle">Admin Dashboard</h2>
                     <div class="user-info">
                         <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Admin">
                         <span id="loggedInAdmin">Admin</span>
@@ -367,6 +457,10 @@
                             <div class="card">
                                 <h4>Pending Withdrawals</h4>
                                 <h2 id="pendingWithdrawals">0</h2>
+                            </div>
+                            <div class="card">
+                                <h4>Pending KYC</h4>
+                                <h2 id="pendingKYC">0</h2>
                             </div>
                             <div class="card">
                                 <h4>Total Balance</h4>
@@ -396,6 +490,20 @@
                 <!-- Deposit Requests -->
                 <div id="depositRequests" class="content-section">
                     <h2>Pending Deposit Requests</h2>
+                    <div class="filters">
+                        <div class="filter-group">
+                            <input type="text" id="depositSearch" class="form-control" placeholder="Search by user or crypto" oninput="loadDepositRequests(this.value)">
+                        </div>
+                        <div class="filter-group">
+                            <select id="depositCryptoFilter" class="select-control" onchange="loadDepositRequests()">
+                                <option value="">All Cryptos</option>
+                                <option value="BTC">Bitcoin</option>
+                                <option value="ETH">Ethereum</option>
+                                <option value="USDT">USDT</option>
+                                <option value="LTC">Litecoin</option>
+                            </select>
+                        </div>
+                    </div>
                     <div id="depositRequestsList">
                         <!-- Deposit requests will be loaded here -->
                     </div>
@@ -404,6 +512,19 @@
                 <!-- Withdrawal Requests -->
                 <div id="withdrawalRequests" class="content-section">
                     <h2>Pending Withdrawal Requests</h2>
+                    <div class="filters">
+                        <div class="filter-group">
+                            <input type="text" id="withdrawalSearch" class="form-control" placeholder="Search by user" oninput="loadWithdrawalRequests(this.value)">
+                        </div>
+                        <div class="filter-group">
+                            <select id="withdrawalMethodFilter" class="select-control" onchange="loadWithdrawalRequests()">
+                                <option value="">All Methods</option>
+                                <option value="Bank">Bank Transfer</option>
+                                <option value="JazzCash">JazzCash</option>
+                                <option value="EasyPaisa">EasyPaisa</option>
+                            </select>
+                        </div>
+                    </div>
                     <div id="withdrawalRequestsList">
                         <!-- Withdrawal requests will be loaded here -->
                     </div>
@@ -412,19 +533,68 @@
                 <!-- User Management -->
                 <div id="userManagement" class="content-section">
                     <h2>User Management</h2>
-                    <div class="form-group">
-                        <input type="text" id="userSearch" class="form-control" placeholder="Search users by name, email or account number">
+                    <div class="filters">
+                        <div class="filter-group">
+                            <input type="text" id="userSearch" class="form-control" placeholder="Search users by name, email or account number" oninput="loadUsers(this.value)">
+                        </div>
+                        <div class="filter-group">
+                            <select id="userStatusFilter" class="select-control" onchange="loadUsers()">
+                                <option value="">All Users</option>
+                                <option value="verified">Verified Only</option>
+                                <option value="unverified">Unverified Only</option>
+                                <option value="suspended">Suspended</option>
+                            </select>
+                        </div>
                     </div>
                     <div id="usersList">
                         <!-- Users will be loaded here -->
                     </div>
                 </div>
 
+                <!-- KYC Verification -->
+                <div id="kycVerification" class="content-section">
+                    <h2>KYC Verification Requests</h2>
+                    <div class="filters">
+                        <div class="filter-group">
+                            <input type="text" id="kycSearch" class="form-control" placeholder="Search by user" oninput="loadKYCRequests(this.value)">
+                        </div>
+                        <div class="filter-group">
+                            <select id="kycStatusFilter" class="select-control" onchange="loadKYCRequests()">
+                                <option value="pending">Pending Only</option>
+                                <option value="">All Requests</option>
+                                <option value="verified">Verified</option>
+                                <option value="rejected">Rejected</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="kycRequestsList">
+                        <!-- KYC requests will be loaded here -->
+                    </div>
+                </div>
+
                 <!-- Transaction History -->
                 <div id="transactionHistory" class="content-section">
                     <h2>All Transactions</h2>
-                    <div class="form-group">
-                        <input type="text" id="transactionSearch" class="form-control" placeholder="Search transactions">
+                    <div class="filters">
+                        <div class="filter-group">
+                            <input type="text" id="transactionSearch" class="form-control" placeholder="Search transactions" oninput="loadAllTransactions(this.value)">
+                        </div>
+                        <div class="filter-group">
+                            <select id="transactionTypeFilter" class="select-control" onchange="loadAllTransactions()">
+                                <option value="">All Types</option>
+                                <option value="deposit">Deposits</option>
+                                <option value="withdrawal">Withdrawals</option>
+                                <option value="transfer">Transfers</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <select id="transactionStatusFilter" class="select-control" onchange="loadAllTransactions()">
+                                <option value="">All Statuses</option>
+                                <option value="pending">Pending</option>
+                                <option value="completed">Completed</option>
+                                <option value="rejected">Rejected</option>
+                            </select>
+                        </div>
                     </div>
                     <table class="table">
                         <thead>
@@ -435,6 +605,7 @@
                                 <th>Description</th>
                                 <th>Amount</th>
                                 <th>Status</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="allTransactions">
@@ -446,13 +617,54 @@
         </div>
     </div>
 
+    <!-- User Detail Modal -->
+    <div id="userDetailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">User Details</h3>
+                <span class="close-modal" onclick="closeModal('userDetailModal')">&times;</span>
+            </div>
+            <div id="userDetailContent">
+                <!-- User details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction Detail Modal -->
+    <div id="transactionDetailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Transaction Details</h3>
+                <span class="close-modal" onclick="closeModal('transactionDetailModal')">&times;</span>
+            </div>
+            <div id="transactionDetailContent">
+                <!-- Transaction details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- KYC Detail Modal -->
+    <div id="kycDetailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">KYC Verification</h3>
+                <span class="close-modal" onclick="closeModal('kycDetailModal')">&times;</span>
+            </div>
+            <div id="kycDetailContent">
+                <!-- KYC details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
     <script>
         // Admin Data
         const adminAccounts = [
             {
+                id: 'admin-001',
                 email: "admin@cryptoexchange.com",
                 password: "admin123",
-                name: "Super Admin"
+                name: "Super Admin",
+                role: "superadmin"
             }
         ];
         
@@ -463,32 +675,31 @@
         const adminApp = document.getElementById('adminApp');
         const loggedInAdmin = document.getElementById('loggedInAdmin');
         const loginError = document.getElementById('loginError');
+        const currentSectionTitle = document.getElementById('currentSectionTitle');
         
         // Dashboard Elements
         const totalUsers = document.getElementById('totalUsers');
         const pendingDeposits = document.getElementById('pendingDeposits');
         const pendingWithdrawals = document.getElementById('pendingWithdrawals');
+        const pendingKYC = document.getElementById('pendingKYC');
         const totalBalance = document.getElementById('totalBalance');
         const recentActivity = document.getElementById('recentActivity');
         
         // Request Lists
         const depositRequestsList = document.getElementById('depositRequestsList');
         const withdrawalRequestsList = document.getElementById('withdrawalRequestsList');
+        const kycRequestsList = document.getElementById('kycRequestsList');
         
         // User Management
         const usersList = document.getElementById('usersList');
-        const userSearch = document.getElementById('userSearch');
         
         // Transaction History
         const allTransactions = document.getElementById('allTransactions');
-        const transactionSearch = document.getElementById('transactionSearch');
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize admin accounts in localStorage if not exists
-            if(!localStorage.getItem('adminAccounts')) {
-                localStorage.setItem('adminAccounts', JSON.stringify(adminAccounts));
-            }
+            // Initialize data in localStorage if not exists
+            initializeLocalStorage();
             
             // Check if admin is already logged in
             if(localStorage.getItem('currentAdmin')) {
@@ -498,18 +709,110 @@
                 loadDepositRequests();
                 loadWithdrawalRequests();
                 loadUsers();
+                loadKYCRequests();
                 loadAllTransactions();
             }
-            
-            // Setup search functionality
-            userSearch.addEventListener('input', function() {
-                loadUsers(this.value);
-            });
-            
-            transactionSearch.addEventListener('input', function() {
-                loadAllTransactions(this.value);
-            });
         });
+
+        function initializeLocalStorage() {
+            // Initialize admin accounts
+            if(!localStorage.getItem('adminAccounts')) {
+                localStorage.setItem('adminAccounts', JSON.stringify(adminAccounts));
+            }
+            
+            // Initialize sample users if none exist
+            if(!localStorage.getItem('users')) {
+                const sampleUsers = [
+                    {
+                        id: 'user-001',
+                        name: 'John Doe',
+                        email: 'john@example.com',
+                        password: 'user123',
+                        phone: '+923001234567',
+                        address: '123 Main St, Lahore',
+                        accountNumber: 'ACC-1001',
+                        balance: 50000,
+                        kycStatus: 'verified',
+                        kycDocuments: {
+                            cnicFront: 'cnic_front_1001.jpg',
+                            cnicBack: 'cnic_back_1001.jpg',
+                            selfie: 'selfie_1001.jpg'
+                        },
+                        status: 'active',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: 'user-002',
+                        name: 'Jane Smith',
+                        email: 'jane@example.com',
+                        password: 'user123',
+                        phone: '+923451234567',
+                        address: '456 Market St, Karachi',
+                        accountNumber: 'ACC-1002',
+                        balance: 25000,
+                        kycStatus: 'pending',
+                        kycDocuments: {
+                            cnicFront: 'cnic_front_1002.jpg',
+                            cnicBack: 'cnic_back_1002.jpg',
+                            selfie: 'selfie_1002.jpg'
+                        },
+                        status: 'active',
+                        createdAt: new Date().toISOString()
+                    }
+                ];
+                localStorage.setItem('users', JSON.stringify(sampleUsers));
+            }
+            
+            // Initialize sample transactions if none exist
+            if(!localStorage.getItem('transactions')) {
+                const sampleTransactions = [
+                    {
+                        id: 'txn-001',
+                        userId: 'user-001',
+                        type: 'deposit',
+                        crypto: 'BTC',
+                        amount: 0.05,
+                        equivalentPkr: 50000,
+                        status: 'completed',
+                        description: 'Bitcoin deposit',
+                        date: new Date(Date.now() - 86400000).toISOString(),
+                        processedAt: new Date(Date.now() - 86300000).toISOString(),
+                        processedBy: 'admin-001'
+                    },
+                    {
+                        id: 'txn-002',
+                        userId: 'user-002',
+                        type: 'deposit',
+                        crypto: 'USDT',
+                        amount: 100,
+                        equivalentPkr: 25000,
+                        status: 'pending',
+                        description: 'USDT deposit',
+                        date: new Date().toISOString()
+                    }
+                ];
+                localStorage.setItem('transactions', JSON.stringify(sampleTransactions));
+                localStorage.setItem('pendingTransactions', JSON.stringify([sampleTransactions[1]]));
+            }
+            
+            // Initialize KYC requests if none exist
+            if(!localStorage.getItem('kycRequests')) {
+                const sampleKYC = [
+                    {
+                        id: 'kyc-001',
+                        userId: 'user-002',
+                        status: 'pending',
+                        submittedAt: new Date(Date.now() - 3600000).toISOString(),
+                        documents: {
+                            cnicFront: 'cnic_front_1002.jpg',
+                            cnicBack: 'cnic_back_1002.jpg',
+                            selfie: 'selfie_1002.jpg'
+                        }
+                    }
+                ];
+                localStorage.setItem('kycRequests', JSON.stringify(sampleKYC));
+            }
+        }
 
         // Admin Functions
         function adminLogin() {
@@ -536,6 +839,7 @@
                 loadDepositRequests();
                 loadWithdrawalRequests();
                 loadUsers();
+                loadKYCRequests();
                 loadAllTransactions();
             } else {
                 loginError.textContent = 'Invalid admin credentials. Try: admin@cryptoexchange.com / admin123';
@@ -558,11 +862,15 @@
         }
 
         function showSection(sectionId) {
+            // Hide all sections
             document.querySelectorAll('.content-section').forEach(section => {
                 section.classList.remove('active');
             });
+            
+            // Show the selected section
             document.getElementById(sectionId).classList.add('active');
             
+            // Update active nav item
             document.querySelectorAll('.nav-item').forEach(item => {
                 item.classList.remove('active');
             });
@@ -577,20 +885,59 @@
                 }
             }
             
+            // Update section title
+            updateSectionTitle(sectionId);
+            
             // Refresh data when section is shown
-            if(sectionId === 'adminDashboard') loadDashboard();
-            if(sectionId === 'depositRequests') loadDepositRequests();
-            if(sectionId === 'withdrawalRequests') loadWithdrawalRequests();
-            if(sectionId === 'userManagement') loadUsers();
-            if(sectionId === 'transactionHistory') loadAllTransactions();
+            switch(sectionId) {
+                case 'adminDashboard':
+                    loadDashboard();
+                    break;
+                case 'depositRequests':
+                    loadDepositRequests();
+                    break;
+                case 'withdrawalRequests':
+                    loadWithdrawalRequests();
+                    break;
+                case 'userManagement':
+                    loadUsers();
+                    break;
+                case 'kycVerification':
+                    loadKYCRequests();
+                    break;
+                case 'transactionHistory':
+                    loadAllTransactions();
+                    break;
+            }
+        }
+
+        function updateSectionTitle(sectionId) {
+            const titles = {
+                'adminDashboard': 'Admin Dashboard',
+                'depositRequests': 'Deposit Requests',
+                'withdrawalRequests': 'Withdrawal Requests',
+                'userManagement': 'User Management',
+                'kycVerification': 'KYC Verification',
+                'transactionHistory': 'Transaction History'
+            };
+            
+            currentSectionTitle.textContent = titles[sectionId] || 'Admin Panel';
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
         }
 
         // Data Loading Functions
         function loadDashboard() {
-            // Load data from localStorage that was saved from user app
             const users = JSON.parse(localStorage.getItem('users')) || [];
             const transactions = JSON.parse(localStorage.getItem('transactions')) || [];
             const pendingTransactions = JSON.parse(localStorage.getItem('pendingTransactions')) || [];
+            const kycRequests = JSON.parse(localStorage.getItem('kycRequests')) || [];
             
             // Calculate stats
             totalUsers.textContent = users.length;
@@ -600,6 +947,9 @@
             
             const pendingWithdrawalsCount = pendingTransactions.filter(t => t.type === 'withdraw' && t.status === 'pending').length;
             pendingWithdrawals.textContent = pendingWithdrawalsCount;
+            
+            const pendingKYCCount = kycRequests.filter(k => k.status === 'pending').length;
+            pendingKYC.textContent = pendingKYCCount;
             
             const totalSystemBalance = users.reduce((sum, user) => sum + user.balance, 0);
             totalBalance.textContent = totalSystemBalance.toFixed(2) + ' PKR';
@@ -624,13 +974,13 @@
                 userCell.textContent = user ? user.name : 'Unknown User';
                 
                 const typeCell = document.createElement('td');
-                typeCell.textContent = transaction.description.includes('Deposit') ? 'Deposit' : 
-                                      transaction.description.includes('Withdrawal') ? 'Withdrawal' : 
+                typeCell.textContent = transaction.type === 'deposit' ? 'Deposit' : 
+                                      transaction.type === 'withdraw' ? 'Withdrawal' : 
                                       'Other';
                 
                 const amountCell = document.createElement('td');
-                amountCell.textContent = transaction.amount.toFixed(2) + ' PKR';
-                amountCell.style.color = transaction.amount > 0 ? 'green' : 'red';
+                amountCell.textContent = transaction.equivalentPkr ? transaction.equivalentPkr.toFixed(2) + ' PKR' : 
+                                         transaction.amount + ' ' + (transaction.crypto || '');
                 
                 const statusCell = document.createElement('td');
                 statusCell.textContent = transaction.status || 'completed';
@@ -654,11 +1004,14 @@
         function loadDepositRequests(search = '') {
             const pendingTransactions = JSON.parse(localStorage.getItem('pendingTransactions')) || [];
             const users = JSON.parse(localStorage.getItem('users')) || [];
+            const cryptoFilter = document.getElementById('depositCryptoFilter').value;
             
             const depositRequests = pendingTransactions
                 .filter(t => t.type === 'deposit' && t.status === 'pending')
                 .filter(t => {
+                    if (cryptoFilter && t.crypto !== cryptoFilter) return false;
                     if (!search) return true;
+                    
                     const user = users.find(u => u.id === t.userId);
                     const userMatch = user ? 
                         user.name.toLowerCase().includes(search.toLowerCase()) || 
@@ -673,7 +1026,7 @@
             depositRequestsList.innerHTML = '';
             
             if(depositRequests.length === 0) {
-                depositRequestsList.innerHTML = '<p>No pending deposit requests</p>';
+                depositRequestsList.innerHTML = '<div class="card"><p>No pending deposit requests</p></div>';
                 return;
             }
             
@@ -688,12 +1041,15 @@
                         <div>
                             <h4>${user.name} (${user.accountNumber})</h4>
                             <p>${request.crypto} Deposit: ${request.amount} ${request.crypto}</p>
+                            <p>Equivalent: ${request.equivalentPkr ? request.equivalentPkr.toFixed(2) + ' PKR' : 'N/A'}</p>
                             <p>Date: ${new Date(request.date).toLocaleString()}</p>
                             ${request.proof ? `<p>Proof: ${request.proof}</p>` : ''}
+                            ${request.transactionHash ? `<p>TX Hash: ${request.transactionHash}</p>` : ''}
                         </div>
                         <div class="user-actions">
-                            <button class="btn btn-success" onclick="approveDeposit('${request.id}')">Approve</button>
-                            <button class="btn btn-danger" onclick="rejectDeposit('${request.id}')">Reject</button>
+                            <button class="btn btn-success" onclick="approveTransaction('${request.id}', 'deposit')">Approve</button>
+                            <button class="btn btn-danger" onclick="rejectTransaction('${request.id}', 'deposit')">Reject</button>
+                            <button class="btn btn-info" onclick="viewTransactionDetails('${request.id}')">Details</button>
                         </div>
                     </div>
                 `;
@@ -705,11 +1061,14 @@
         function loadWithdrawalRequests(search = '') {
             const pendingTransactions = JSON.parse(localStorage.getItem('pendingTransactions')) || [];
             const users = JSON.parse(localStorage.getItem('users')) || [];
+            const methodFilter = document.getElementById('withdrawalMethodFilter').value;
             
             const withdrawalRequests = pendingTransactions
                 .filter(t => t.type === 'withdraw' && t.status === 'pending')
                 .filter(t => {
+                    if (methodFilter && t.method !== methodFilter) return false;
                     if (!search) return true;
+                    
                     const user = users.find(u => u.id === t.userId);
                     const userMatch = user ? 
                         user.name.toLowerCase().includes(search.toLowerCase()) || 
@@ -724,7 +1083,7 @@
             withdrawalRequestsList.innerHTML = '';
             
             if(withdrawalRequests.length === 0) {
-                withdrawalRequestsList.innerHTML = '<p>No pending withdrawal requests</p>';
+                withdrawalRequestsList.innerHTML = '<div class="card"><p>No pending withdrawal requests</p></div>';
                 return;
             }
             
@@ -741,10 +1100,12 @@
                             <p>Withdrawal to ${request.method}: ${request.amount} PKR</p>
                             <p>Account: ${request.accountDetails} (${request.accountName})</p>
                             <p>Date: ${new Date(request.date).toLocaleString()}</p>
+                            ${request.notes ? `<p>Notes: ${request.notes}</p>` : ''}
                         </div>
                         <div class="user-actions">
-                            <button class="btn btn-success" onclick="approveWithdrawal('${request.id}')">Approve</button>
-                            <button class="btn btn-danger" onclick="rejectWithdrawal('${request.id}')">Reject</button>
+                            <button class="btn btn-success" onclick="approveTransaction('${request.id}', 'withdrawal')">Approve</button>
+                            <button class="btn btn-danger" onclick="rejectTransaction('${request.id}', 'withdrawal')">Reject</button>
+                            <button class="btn btn-info" onclick="viewTransactionDetails('${request.id}')">Details</button>
                         </div>
                     </div>
                 `;
@@ -755,36 +1116,51 @@
 
         function loadUsers(search = '') {
             const users = JSON.parse(localStorage.getItem('users')) || [];
+            const statusFilter = document.getElementById('userStatusFilter').value;
             
             usersList.innerHTML = '';
             
             const filteredUsers = users
-                .filter(user => 
-                    !search ||
-                    user.name.toLowerCase().includes(search.toLowerCase()) ||
-                    user.email.toLowerCase().includes(search.toLowerCase()) ||
-                    user.accountNumber.toLowerCase().includes(search.toLowerCase())
-                )
+                .filter(user => {
+                    if (statusFilter === 'verified' && user.kycStatus !== 'verified') return false;
+                    if (statusFilter === 'unverified' && user.kycStatus === 'verified') return false;
+                    if (statusFilter === 'suspended' && user.status !== 'suspended') return false;
+                    
+                    return !search ||
+                        user.name.toLowerCase().includes(search.toLowerCase()) ||
+                        user.email.toLowerCase().includes(search.toLowerCase()) ||
+                        user.accountNumber.toLowerCase().includes(search.toLowerCase());
+                })
                 .reverse();
             
             if(filteredUsers.length === 0) {
-                usersList.innerHTML = '<p>No users found</p>';
+                usersList.innerHTML = '<div class="card"><p>No users found</p></div>';
                 return;
             }
             
             filteredUsers.forEach(user => {
+                const kycBadgeClass = user.kycStatus === 'verified' ? 'kyc-verified' : 
+                                     user.kycStatus === 'pending' ? 'kyc-pending' : 'kyc-not-verified';
+                const kycBadgeText = user.kycStatus === 'verified' ? 'Verified' : 
+                                     user.kycStatus === 'pending' ? 'Pending' : 'Not Verified';
+                
                 const card = document.createElement('div');
                 card.className = 'user-card';
                 card.innerHTML = `
                     <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="User">
                     <div class="user-details">
-                        <h4>${user.name}</h4>
-                        <p>${user.email}</p>
+                        <h4>${user.name} <span class="kyc-badge ${kycBadgeClass}">${kycBadgeText}</span></h4>
+                        <p>${user.email} | ${user.phone}</p>
                         <p>Account: ${user.accountNumber} | Balance: ${user.balance.toFixed(2)} PKR</p>
+                        <p>Status: ${user.status}</p>
                     </div>
                     <div class="user-actions">
-                        <button class="btn btn-primary" onclick="viewUser('${user.id}')">View</button>
-                        <button class="btn btn-warning" onclick="editUser('${user.id}')">Edit</button>
+                        <button class="btn btn-primary btn-sm" onclick="viewUserDetails('${user.id}')">View</button>
+                        <button class="btn btn-warning btn-sm" onclick="editUser('${user.id}')">Edit</button>
+                        ${user.status === 'active' ? 
+                            `<button class="btn btn-danger btn-sm" onclick="suspendUser('${user.id}')">Suspend</button>` : 
+                            `<button class="btn btn-success btn-sm" onclick="activateUser('${user.id}')">Activate</button>`
+                        }
                     </div>
                 `;
                 
@@ -792,23 +1168,87 @@
             });
         }
 
+        function loadKYCRequests(search = '') {
+            const kycRequests = JSON.parse(localStorage.getItem('kycRequests')) || [];
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const statusFilter = document.getElementById('kycStatusFilter').value;
+            
+            kycRequestsList.innerHTML = '';
+            
+            const filteredRequests = kycRequests
+                .filter(request => {
+                    if (statusFilter && request.status !== statusFilter) return false;
+                    if (!search) return true;
+                    
+                    const user = users.find(u => u.id === request.userId);
+                    return user ? 
+                        user.name.toLowerCase().includes(search.toLowerCase()) || 
+                        user.email.toLowerCase().includes(search.toLowerCase()) || 
+                        user.accountNumber.toLowerCase().includes(search.toLowerCase())
+                        : false;
+                })
+                .reverse();
+            
+            if(filteredRequests.length === 0) {
+                kycRequestsList.innerHTML = '<div class="card"><p>No KYC requests found</p></div>';
+                return;
+            }
+            
+            filteredRequests.forEach(request => {
+                const user = users.find(u => u.id === request.userId);
+                if(!user) return;
+                
+                const statusBadgeClass = request.status === 'verified' ? 'kyc-verified' : 
+                                        request.status === 'pending' ? 'kyc-pending' : 'kyc-not-verified';
+                
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h4>${user.name} (${user.accountNumber})</h4>
+                            <p>Status: <span class="kyc-badge ${statusBadgeClass}">${request.status}</span></p>
+                            <p>Submitted: ${new Date(request.submittedAt).toLocaleString()}</p>
+                            ${request.processedAt ? `<p>Processed: ${new Date(request.processedAt).toLocaleString()}</p>` : ''}
+                            ${request.processedBy ? `<p>Processed By: ${request.processedBy}</p>` : ''}
+                        </div>
+                        <div class="user-actions">
+                            ${request.status === 'pending' ? `
+                                <button class="btn btn-success btn-sm" onclick="approveKYC('${request.id}')">Approve</button>
+                                <button class="btn btn-danger btn-sm" onclick="rejectKYC('${request.id}')">Reject</button>
+                            ` : ''}
+                            <button class="btn btn-primary btn-sm" onclick="viewKYCDetails('${request.id}')">View</button>
+                        </div>
+                    </div>
+                `;
+                
+                kycRequestsList.appendChild(card);
+            });
+        }
+
         function loadAllTransactions(search = '') {
             const transactions = JSON.parse(localStorage.getItem('transactions')) || [];
             const users = JSON.parse(localStorage.getItem('users')) || [];
+            const typeFilter = document.getElementById('transactionTypeFilter').value;
+            const statusFilter = document.getElementById('transactionStatusFilter').value;
             
             allTransactions.innerHTML = '';
             
             const filteredTransactions = transactions
-                .filter(t => 
-                    !search ||
-                    (users.find(u => u.id === t.userId)?.name.toLowerCase().includes(search.toLowerCase())) ||
-                    t.description.toLowerCase().includes(search.toLowerCase()) ||
-                    t.status.toLowerCase().includes(search.toLowerCase())
-                )
+                .filter(t => {
+                    if (typeFilter && t.type !== typeFilter) return false;
+                    if (statusFilter && t.status !== statusFilter) return false;
+                    
+                    return !search ||
+                        (users.find(u => u.id === t.userId)?.name.toLowerCase().includes(search.toLowerCase())) ||
+                        t.description.toLowerCase().includes(search.toLowerCase()) ||
+                        t.status.toLowerCase().includes(search.toLowerCase()) ||
+                        (t.crypto && t.crypto.toLowerCase().includes(search.toLowerCase()));
+                })
                 .reverse();
             
             if(filteredTransactions.length === 0) {
-                allTransactions.innerHTML = '<tr><td colspan="6" style="text-align: center;">No transactions found</td></tr>';
+                allTransactions.innerHTML = '<tr><td colspan="7" style="text-align: center;">No transactions found</td></tr>';
                 return;
             }
             
@@ -823,16 +1263,15 @@
                 userCell.textContent = user ? user.name : 'Unknown User';
                 
                 const typeCell = document.createElement('td');
-                typeCell.textContent = transaction.description.includes('Deposit') ? 'Deposit' : 
-                                      transaction.description.includes('Withdrawal') ? 'Withdrawal' : 
-                                      'Other';
+                typeCell.textContent = transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1);
                 
                 const descCell = document.createElement('td');
                 descCell.textContent = transaction.description;
                 
                 const amountCell = document.createElement('td');
-                amountCell.textContent = transaction.amount.toFixed(2) + ' PKR';
-                amountCell.style.color = transaction.amount > 0 ? 'green' : 'red';
+                amountCell.textContent = transaction.equivalentPkr ? 
+                    transaction.equivalentPkr.toFixed(2) + ' PKR' : 
+                    transaction.amount + ' ' + (transaction.crypto || 'PKR');
                 
                 const statusCell = document.createElement('td');
                 statusCell.textContent = transaction.status || 'completed';
@@ -844,21 +1283,25 @@
                     statusCell.className = 'status-rejected';
                 }
                 
+                const actionCell = document.createElement('td');
+                actionCell.innerHTML = `<button class="btn btn-info btn-sm" onclick="viewTransactionDetails('${transaction.id}')">Details</button>`;
+                
                 row.appendChild(dateCell);
                 row.appendChild(userCell);
                 row.appendChild(typeCell);
                 row.appendChild(descCell);
                 row.appendChild(amountCell);
                 row.appendChild(statusCell);
+                row.appendChild(actionCell);
                 allTransactions.appendChild(row);
             });
         }
 
         // Admin Actions
-        function approveDeposit(transactionId) {
+        function approveTransaction(transactionId, type) {
             const pendingTransactions = JSON.parse(localStorage.getItem('pendingTransactions')) || [];
-            const users = JSON.parse(localStorage.getItem('users')) || [];
             const transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+            const users = JSON.parse(localStorage.getItem('users')) || [];
             
             const transactionIndex = pendingTransactions.findIndex(t => t.id === transactionId);
             if(transactionIndex === -1) return;
@@ -866,96 +1309,47 @@
             const transaction = pendingTransactions[transactionIndex];
             const userIndex = users.findIndex(u => u.id === transaction.userId);
             
-            if(userIndex !== -1) {
-                // Update user balance
-                users[userIndex].balance += transaction.amount;
-                
-                // Update transaction status
-                transaction.status = 'completed';
-                pendingTransactions.splice(transactionIndex, 1);
-                
-                // Update main transactions
-                const mainTransactionIndex = transactions.findIndex(t => t.id === transactionId);
-                if(mainTransactionIndex !== -1) {
-                    transactions[mainTransactionIndex].status = 'completed';
-                    transactions[mainTransactionIndex].amount = transaction.amount;
-                    transactions[mainTransactionIndex].balance = users[userIndex].balance;
-                    transactions[mainTransactionIndex].description = `Deposit completed: ${transaction.crypto}`;
-                }
-                
-                // Save changes
-                localStorage.setItem('users', JSON.stringify(users));
-                localStorage.setItem('pendingTransactions', JSON.stringify(pendingTransactions));
-                localStorage.setItem('transactions', JSON.stringify(transactions));
-                
-                alert('Deposit approved successfully');
-                loadDashboard();
-                loadDepositRequests();
+            if(type === 'deposit' && userIndex !== -1) {
+                // For deposits, add to user balance
+                users[userIndex].balance += transaction.equivalentPkr || transaction.amount;
+            } else if(type === 'withdrawal' && userIndex !== -1) {
+                // For withdrawals, we already deducted when request was made
+                // Just need to mark as completed
             }
-        }
-
-        function rejectDeposit(transactionId) {
-            const pendingTransactions = JSON.parse(localStorage.getItem('pendingTransactions')) || [];
-            const transactions = JSON.parse(localStorage.getItem('transactions')) || [];
-            
-            const transactionIndex = pendingTransactions.findIndex(t => t.id === transactionId);
-            if(transactionIndex === -1) return;
-            
-            const transaction = pendingTransactions[transactionIndex];
-            
-            // Update transaction status
-            transaction.status = 'rejected';
-            pendingTransactions.splice(transactionIndex, 1);
-            
-            // Update main transactions
-            const mainTransactionIndex = transactions.findIndex(t => t.id === transactionId);
-            if(mainTransactionIndex !== -1) {
-                transactions[mainTransactionIndex].status = 'rejected';
-                transactions[mainTransactionIndex].description = `Deposit rejected: ${transaction.crypto}`;
-            }
-            
-            // Save changes
-            localStorage.setItem('pendingTransactions', JSON.stringify(pendingTransactions));
-            localStorage.setItem('transactions', JSON.stringify(transactions));
-            
-            alert('Deposit rejected');
-            loadDashboard();
-            loadDepositRequests();
-        }
-
-        function approveWithdrawal(transactionId) {
-            const pendingTransactions = JSON.parse(localStorage.getItem('pendingTransactions')) || [];
-            const transactions = JSON.parse(localStorage.getItem('transactions')) || [];
-            
-            const transactionIndex = pendingTransactions.findIndex(t => t.id === transactionId);
-            if(transactionIndex === -1) return;
-            
-            const transaction = pendingTransactions[transactionIndex];
             
             // Update transaction status
             transaction.status = 'completed';
+            transaction.processedAt = new Date().toISOString();
+            transaction.processedBy = currentAdmin.id;
+            
+            // Remove from pending transactions
             pendingTransactions.splice(transactionIndex, 1);
             
             // Update main transactions
             const mainTransactionIndex = transactions.findIndex(t => t.id === transactionId);
             if(mainTransactionIndex !== -1) {
-                transactions[mainTransactionIndex].status = 'completed';
-                transactions[mainTransactionIndex].description = `Withdrawal completed to ${transaction.method}`;
+                transactions[mainTransactionIndex] = transaction;
             }
             
             // Save changes
+            localStorage.setItem('users', JSON.stringify(users));
             localStorage.setItem('pendingTransactions', JSON.stringify(pendingTransactions));
             localStorage.setItem('transactions', JSON.stringify(transactions));
             
-            alert('Withdrawal approved successfully');
+            alert('Transaction approved successfully');
             loadDashboard();
-            loadWithdrawalRequests();
+            if(type === 'deposit') {
+                loadDepositRequests();
+            } else {
+                loadWithdrawalRequests();
+            }
+            loadAllTransactions();
         }
 
-        function rejectWithdrawal(transactionId) {
+        function rejectTransaction(transactionId, type) {
             const pendingTransactions = JSON.parse(localStorage.getItem('pendingTransactions')) || [];
-            const users = JSON.parse(localStorage.getItem('users')) || [];
             const transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+            const users = JSON.parse(localStorage.getItem('users')) || [];
             
             const transactionIndex = pendingTransactions.findIndex(t => t.id === transactionId);
             if(transactionIndex === -1) return;
@@ -963,39 +1357,121 @@
             const transaction = pendingTransactions[transactionIndex];
             const userIndex = users.findIndex(u => u.id === transaction.userId);
             
-            if(userIndex !== -1) {
-                // Return funds to user balance
+            if(type === 'withdrawal' && userIndex !== -1) {
+                // For withdrawals, return funds to user balance
                 users[userIndex].balance += transaction.amount;
+            }
+            
+            // Update transaction status
+            transaction.status = 'rejected';
+            transaction.processedAt = new Date().toISOString();
+            transaction.processedBy = currentAdmin.id;
+            
+            // Remove from pending transactions
+            pendingTransactions.splice(transactionIndex, 1);
+            
+            // Update main transactions
+            const mainTransactionIndex = transactions.findIndex(t => t.id === transactionId);
+            if(mainTransactionIndex !== -1) {
+                transactions[mainTransactionIndex] = transaction;
+            }
+            
+            // Save changes
+            localStorage.setItem('users', JSON.stringify(users));
+            localStorage.setItem('pendingTransactions', JSON.stringify(pendingTransactions));
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+            
+            alert('Transaction rejected');
+            loadDashboard();
+            if(type === 'deposit') {
+                loadDepositRequests();
+            } else {
+                loadWithdrawalRequests();
+            }
+            loadAllTransactions();
+        }
+
+        function approveKYC(kycId) {
+            const kycRequests = JSON.parse(localStorage.getItem('kycRequests')) || [];
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            
+            const kycIndex = kycRequests.findIndex(k => k.id === kycId);
+            if(kycIndex === -1) return;
+            
+            const kycRequest = kycRequests[kycIndex];
+            const userIndex = users.findIndex(u => u.id === kycRequest.userId);
+            
+            if(userIndex !== -1) {
+                // Update user KYC status
+                users[userIndex].kycStatus = 'verified';
                 
-                // Update transaction status
-                transaction.status = 'rejected';
-                pendingTransactions.splice(transactionIndex, 1);
-                
-                // Update main transactions
-                const mainTransactionIndex = transactions.findIndex(t => t.id === transactionId);
-                if(mainTransactionIndex !== -1) {
-                    transactions[mainTransactionIndex].status = 'rejected';
-                    transactions[mainTransactionIndex].balance = users[userIndex].balance;
-                    transactions[mainTransactionIndex].description = `Withdrawal rejected from ${transaction.method}`;
-                }
+                // Update KYC request
+                kycRequest.status = 'verified';
+                kycRequest.processedAt = new Date().toISOString();
+                kycRequest.processedBy = currentAdmin.id;
                 
                 // Save changes
                 localStorage.setItem('users', JSON.stringify(users));
-                localStorage.setItem('pendingTransactions', JSON.stringify(pendingTransactions));
-                localStorage.setItem('transactions', JSON.stringify(transactions));
+                localStorage.setItem('kycRequests', JSON.stringify(kycRequests));
                 
-                alert('Withdrawal rejected and funds returned to user');
+                alert('KYC approved successfully');
                 loadDashboard();
-                loadWithdrawalRequests();
+                loadKYCRequests();
+                loadUsers();
             }
         }
 
-        function viewUser(userId) {
+        function rejectKYC(kycId) {
+            const kycRequests = JSON.parse(localStorage.getItem('kycRequests')) || [];
             const users = JSON.parse(localStorage.getItem('users')) || [];
-            const user = users.find(u => u.id === userId);
             
-            if(user) {
-                alert(`User Details:\n\nName: ${user.name}\nEmail: ${user.email}\nPhone: ${user.phone}\nAddress: ${user.address}\nAccount: ${user.accountNumber}\nBalance: ${user.balance.toFixed(2)} PKR\nKYC: ${user.kycVerified ? 'Verified' : 'Not Verified'}`);
+            const kycIndex = kycRequests.findIndex(k => k.id === kycId);
+            if(kycIndex === -1) return;
+            
+            const kycRequest = kycRequests[kycIndex];
+            const userIndex = users.findIndex(u => u.id === kycRequest.userId);
+            
+            if(userIndex !== -1) {
+                // Update user KYC status
+                users[userIndex].kycStatus = 'rejected';
+                
+                // Update KYC request
+                kycRequest.status = 'rejected';
+                kycRequest.processedAt = new Date().toISOString();
+                kycRequest.processedBy = currentAdmin.id;
+                
+                // Save changes
+                localStorage.setItem('users', JSON.stringify(users));
+                localStorage.setItem('kycRequests', JSON.stringify(kycRequests));
+                
+                alert('KYC rejected');
+                loadDashboard();
+                loadKYCRequests();
+                loadUsers();
+            }
+        }
+
+        function suspendUser(userId) {
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const userIndex = users.findIndex(u => u.id === userId);
+            
+            if(userIndex !== -1) {
+                users[userIndex].status = 'suspended';
+                localStorage.setItem('users', JSON.stringify(users));
+                alert('User suspended');
+                loadUsers();
+            }
+        }
+
+        function activateUser(userId) {
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const userIndex = users.findIndex(u => u.id === userId);
+            
+            if(userIndex !== -1) {
+                users[userIndex].status = 'active';
+                localStorage.setItem('users', JSON.stringify(users));
+                alert('User activated');
+                loadUsers();
             }
         }
 
@@ -1013,6 +1489,220 @@
                     loadDashboard();
                 }
             }
+        }
+
+        function viewUserDetails(userId) {
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+            const user = users.find(u => u.id === userId);
+            
+            if(user) {
+                const userTransactions = transactions
+                    .filter(t => t.userId === userId)
+                    .slice(0, 5) // Show only 5 most recent
+                    .map(t => `
+                        <tr>
+                            <td>${new Date(t.date).toLocaleString()}</td>
+                            <td>${t.type}</td>
+                            <td>${t.description}</td>
+                            <td>${t.equivalentPkr ? t.equivalentPkr.toFixed(2) + ' PKR' : t.amount + ' ' + (t.crypto || '')}</td>
+                            <td class="${t.status === 'pending' ? 'status-pending' : 
+                                        t.status === 'completed' ? 'status-completed' : 
+                                        'status-rejected'}">${t.status}</td>
+                        </tr>
+                    `)
+                    .join('');
+                
+                document.getElementById('userDetailContent').innerHTML = `
+                    <div class="card">
+                        <h4>Personal Information</h4>
+                        <p><strong>Name:</strong> ${user.name}</p>
+                        <p><strong>Email:</strong> ${user.email}</p>
+                        <p><strong>Phone:</strong> ${user.phone}</p>
+                        <p><strong>Address:</strong> ${user.address}</p>
+                        <p><strong>Account Number:</strong> ${user.accountNumber}</p>
+                        <p><strong>Balance:</strong> ${user.balance.toFixed(2)} PKR</p>
+                        <p><strong>KYC Status:</strong> <span class="kyc-badge ${user.kycStatus === 'verified' ? 'kyc-verified' : 
+                                                                                user.kycStatus === 'pending' ? 'kyc-pending' : 
+                                                                                'kyc-not-verified'}">
+                            ${user.kycStatus === 'verified' ? 'Verified' : 
+                             user.kycStatus === 'pending' ? 'Pending' : 'Not Verified'}
+                        </span></p>
+                        <p><strong>Account Status:</strong> ${user.status}</p>
+                    </div>
+                    <div class="card">
+                        <h4>Recent Transactions</h4>
+                        ${userTransactions.length > 0 ? `
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Type</th>
+                                        <th>Description</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${userTransactions}
+                                </tbody>
+                            </table>
+                        ` : '<p>No transactions found</p>'}
+                    </div>
+                `;
+                
+                openModal('userDetailModal');
+            }
+        }
+
+        function viewTransactionDetails(transactionId) {
+            const transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const transaction = transactions.find(t => t.id === transactionId);
+            
+            if(transaction) {
+                const user = users.find(u => u.id === transaction.userId);
+                
+                let detailsHtml = `
+                    <div class="card">
+                        <h4>Transaction Information</h4>
+                        <p><strong>Transaction ID:</strong> ${transaction.id}</p>
+                        <p><strong>User:</strong> ${user ? user.name : 'Unknown'} (${user ? user.accountNumber : 'N/A'})</p>
+                        <p><strong>Type:</strong> ${transaction.type}</p>
+                        <p><strong>Description:</strong> ${transaction.description}</p>
+                        <p><strong>Amount:</strong> ${transaction.equivalentPkr ? 
+                            transaction.equivalentPkr.toFixed(2) + ' PKR' : 
+                            transaction.amount + ' ' + (transaction.crypto || 'PKR')}</p>
+                        <p><strong>Date:</strong> ${new Date(transaction.date).toLocaleString()}</p>
+                        <p><strong>Status:</strong> <span class="${transaction.status === 'pending' ? 'status-pending' : 
+                                                                    transaction.status === 'completed' ? 'status-completed' : 
+                                                                    'status-rejected'}">${transaction.status}</span></p>
+                `;
+                
+                if(transaction.type === 'deposit') {
+                    detailsHtml += `
+                        <p><strong>Crypto:</strong> ${transaction.crypto}</p>
+                        ${transaction.transactionHash ? `<p><strong>Transaction Hash:</strong> ${transaction.transactionHash}</p>` : ''}
+                        ${transaction.proof ? `<p><strong>Proof:</strong> ${transaction.proof}</p>` : ''}
+                    `;
+                } else if(transaction.type === 'withdraw') {
+                    detailsHtml += `
+                        <p><strong>Method:</strong> ${transaction.method}</p>
+                        <p><strong>Account Details:</strong> ${transaction.accountDetails}</p>
+                        <p><strong>Account Name:</strong> ${transaction.accountName}</p>
+                        ${transaction.notes ? `<p><strong>Notes:</strong> ${transaction.notes}</p>` : ''}
+                    `;
+                }
+                
+                if(transaction.processedAt) {
+                    detailsHtml += `
+                        <p><strong>Processed At:</strong> ${new Date(transaction.processedAt).toLocaleString()}</p>
+                        <p><strong>Processed By:</strong> ${transaction.processedBy}</p>
+                    `;
+                }
+                
+                detailsHtml += `</div>`;
+                
+                document.getElementById('transactionDetailContent').innerHTML = detailsHtml;
+                openModal('transactionDetailModal');
+            }
+        }
+
+        function viewKYCDetails(kycId) {
+            const kycRequests = JSON.parse(localStorage.getItem('kycRequests')) || [];
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const kycRequest = kycRequests.find(k => k.id === kycId);
+            
+            if(kycRequest) {
+                const user = users.find(u => u.id === kycRequest.userId);
+                
+                document.getElementById('kycDetailContent').innerHTML = `
+                    <div class="card">
+                        <h4>User Information</h4>
+                        <p><strong>Name:</strong> ${user ? user.name : 'Unknown'}</p>
+                        <p><strong>Account Number:</strong> ${user ? user.accountNumber : 'N/A'}</p>
+                        <p><strong>Email:</strong> ${user ? user.email : 'N/A'}</p>
+                        <p><strong>Phone:</strong> ${user ? user.phone : 'N/A'}</p>
+                    </div>
+                    <div class="card">
+                        <h4>KYC Details</h4>
+                        <p><strong>Status:</strong> <span class="kyc-badge ${kycRequest.status === 'verified' ? 'kyc-verified' : 
+                                                                           kycRequest.status === 'pending' ? 'kyc-pending' : 
+                                                                           'kyc-not-verified'}">
+                            ${kycRequest.status}
+                        </span></p>
+                        <p><strong>Submitted At:</strong> ${new Date(kycRequest.submittedAt).toLocaleString()}</p>
+                        ${kycRequest.processedAt ? `<p><strong>Processed At:</strong> ${new Date(kycRequest.processedAt).toLocaleString()}</p>` : ''}
+                        ${kycRequest.processedBy ? `<p><strong>Processed By:</strong> ${kycRequest.processedBy}</p>` : ''}
+                        ${kycRequest.reason ? `<p><strong>Reason:</strong> ${kycRequest.reason}</p>` : ''}
+                    </div>
+                    <div class="card">
+                        <h4>Documents</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                            <div>
+                                <p><strong>CNIC Front:</strong></p>
+                                <img src="${kycRequest.documents.cnicFront}" alt="CNIC Front" class="proof-image">
+                            </div>
+                            <div>
+                                <p><strong>CNIC Back:</strong></p>
+                                <img src="${kycRequest.documents.cnicBack}" alt="CNIC Back" class="proof-image">
+                            </div>
+                            <div>
+                                <p><strong>Selfie:</strong></p>
+                                <img src="${kycRequest.documents.selfie}" alt="Selfie" class="proof-image">
+                            </div>
+                        </div>
+                    </div>
+                    ${kycRequest.status === 'pending' ? `
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button class="btn btn-success" onclick="approveKYC('${kycId}'); closeModal('kycDetailModal')">Approve KYC</button>
+                        <button class="btn btn-danger" onclick="rejectKYCWithReason('${kycId}')">Reject KYC</button>
+                    </div>
+                    ` : ''}
+                `;
+                
+                openModal('kycDetailModal');
+            }
+        }
+
+        function rejectKYCWithReason(kycId) {
+            const reason = prompt('Please enter reason for rejection:');
+            if(reason !== null) {
+                const kycRequests = JSON.parse(localStorage.getItem('kycRequests')) || [];
+                const users = JSON.parse(localStorage.getItem('users')) || [];
+                
+                const kycIndex = kycRequests.findIndex(k => k.id === kycId);
+                if(kycIndex === -1) return;
+                
+                const kycRequest = kycRequests[kycIndex];
+                const userIndex = users.findIndex(u => u.id === kycRequest.userId);
+                
+                if(userIndex !== -1) {
+                    // Update user KYC status
+                    users[userIndex].kycStatus = 'rejected';
+                    
+                    // Update KYC request
+                    kycRequest.status = 'rejected';
+                    kycRequest.reason = reason;
+                    kycRequest.processedAt = new Date().toISOString();
+                    kycRequest.processedBy = currentAdmin.id;
+                    
+                    // Save changes
+                    localStorage.setItem('users', JSON.stringify(users));
+                    localStorage.setItem('kycRequests', JSON.stringify(kycRequests));
+                    
+                    alert('KYC rejected');
+                    closeModal('kycDetailModal');
+                    loadDashboard();
+                    loadKYCRequests();
+                    loadUsers();
+                }
+            }
+        }
+
+        // Utility function to generate IDs
+        function generateId() {
+            return 'id-' + Math.random().toString(36).substr(2, 9);
         }
     </script>
 </body>
