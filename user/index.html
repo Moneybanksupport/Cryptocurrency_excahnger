@@ -466,7 +466,7 @@
                         <div class="form-group" id="depositAddressGroup" style="display: none;">
                             <label>Deposit Address</label>
                             <div class="deposit-address" id="cryptoAddressDisplay">Please select a cryptocurrency</div>
-                            <p class="processing-time">Processing time: 24 hours after network confirmation</p>
+                            <p class="processing-time">Processing time: 2 hours after network confirmation</p>
                         </div>
                         <div class="form-group" id="depositAmountGroup" style="display: none;">
                             <label for="depositAmount">Amount</label>
@@ -541,7 +541,7 @@
                             <input type="text" id="accountName" class="form-control" placeholder="Enter account holder name">
                         </div>
                         <button type="submit" class="btn btn-primary btn-block" id="withdrawSubmitBtn" style="display: none;">Request Withdrawal</button>
-                        <p class="processing-time">Processing time: 24 hours</p>
+                        <p class="processing-time">Processing time: 2 hours</p>
                     </form>
                 </div>
 
@@ -668,7 +668,7 @@
                 const transactionDate = new Date(transaction.date);
                 const hoursDiff = (now - transactionDate) / (1000 * 60 * 60);
                 
-                if (hoursDiff >= 24) {
+                if (hoursDiff >= 2) {
                     // Transaction processing time complete
                     if (transaction.type === 'deposit') {
                         balance += transaction.amount;
@@ -827,7 +827,7 @@
             localStorage.setItem('pendingTransactions', JSON.stringify(pendingTransactions));
             
             addTransaction(`Deposit initiated: ${crypto.toUpperCase()}`, 0, balance, 'pending');
-            alert(`Deposit request received. Your ${amount} ${crypto.toUpperCase()} will be converted to PKR after 24 hours processing time.`);
+            alert(`Deposit request received. Your ${amount} ${crypto.toUpperCase()} will be converted to PKR after 2 hours processing time.`);
             depositForm.reset();
             proofFileName.textContent = 'No file selected';
             document.querySelectorAll('.crypto-option').forEach(opt => {
@@ -894,7 +894,7 @@
             updateBalance();
             
             addTransaction(`Withdrawal initiated to ${method}`, -amount, balance, 'pending');
-            alert(`Withdrawal request received. Your ${amount} PKR will be sent to your ${method} account after 24 hours processing time.`);
+            alert(`Withdrawal request received. Your ${amount} PKR will be sent to your ${method} account after 2 hours processing time.`);
             withdrawForm.reset();
             document.querySelectorAll('.payment-method').forEach(opt => {
                 opt.style.borderColor = '#ddd';
